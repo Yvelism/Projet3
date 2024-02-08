@@ -1,5 +1,5 @@
 # Projet3
-Projet NSI terminale Alis, Darine, Imane
+Projet NSI terminale Alis, Darina, Imane
 
 -flipper
 -pacman
