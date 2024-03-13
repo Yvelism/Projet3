@@ -78,7 +78,6 @@ tuto = False
 
 class Perso:
   def __init__(self):
-
     
   def perso_deplacement():
       """Déplacement du personnage"""
@@ -159,155 +158,148 @@ class Perso:
               star_liste.remove(star)
               #pyxel.play(2, 2)
               return
+    
+  def floor_is():
+      """Définit le sol du perso à un moment donné, pour savoir si celui-ci doit descendre ou rester à la même hauteur"""
+      global floor
+      for plateforme in plateforme_liste:
+          if perso_y + taille_perso_y <= plateforme[1] and perso_x + taille_perso_x > plateforme[0] and perso_x < \
+                  plateforme[0] + taille_plateforme:
+              floor = plateforme[1]
+              return
+      floor = 192
+      return
+  
 
 
-def plateforme_deplacement():
-    """Déplacement des plateformes"""
-    if last_scroll > scroll:
-        for plateforme in plateforme_liste:
-            if plateforme[2] < scroll:
-                plateforme[0] += plvitesse_mouv
-        return
-    if last_scroll < scroll:
-        for plateforme in plateforme_liste:
-            if plateforme[2] < scroll:
-                plateforme[0] -= plvitesse_mouv
-        return
-    return
+class plateforme:
+  def __init__(self):
+      
+  def plateforme_deplacement():
+      """Déplacement des plateformes"""
+      if last_scroll > scroll:
+          for plateforme in plateforme_liste:
+              if plateforme[2] < scroll:
+                  plateforme[0] += plvitesse_mouv
+          return
+      if last_scroll < scroll:
+          for plateforme in plateforme_liste:
+              if plateforme[2] < scroll:
+                  plateforme[0] -= plvitesse_mouv
+          return
+      return
+  
+  
+  
+  def deplacement_avec_plateforme(liste):
+      """Déplacement des stars"""
+      if last_scroll > scroll:
+          for element in liste:
+              if element[2] < scroll:
+                  element[0] += plvitesse_mouv
+          return
+      if last_scroll < scroll:
+          for element in liste:
+              if element[2] < scroll:
+                  element[0] -= plvitesse_mouv
+          return
+      return
 
 
-def deplacement_avec_plateforme_deco(liste):
-    """Déplacement des étoiles"""
-    if last_scroll > scroll:
-        for element in liste:
-            if element[1] < scroll:
-                element[0] += plvitesse_mouv
-        return
-    if last_scroll < scroll:
-        for element in liste:
-            if element[1] < scroll:
-                element[0] -= plvitesse_mouv
-        return
-    return
-
-
-def deplacement_avec_plateforme(liste):
-    """Déplacement des stars"""
-    if last_scroll > scroll:
-        for element in liste:
-            if element[2] < scroll:
-                element[0] += plvitesse_mouv
-        return
-    if last_scroll < scroll:
-        for element in liste:
-            if element[2] < scroll:
-                element[0] -= plvitesse_mouv
-        return
-    return
-
-
-def ennemi_creation(y, ennemi_floor, reste_sur_plateforme):
-    """Création d'ennemi dependant un niveau"""
-    global ecran_bord
-    # dans ennemi_liste: x l'ennemi, y l'ennemi, le sol de l'ennemi reste sur plateforme ou non?,
-    # sens inverse (Faux au début)
-    ennemi = [ecran_bord, y, ennemi_floor]
-    if reste_sur_plateforme:
-        ennemi.append(True)
-    else:
-        ennemi.append(False)
-    ennemi.append(False)  # pour aller vers la gauche (sense normal)
-    ennemi_liste.append(ennemi)
-
-
-def ennemi_deplacement():
-    """Tous les déplacements de tous les ennemis"""
-    for ennemi in ennemi_liste:
-        if not ennemi[5]:  # sens de mouvement normal
-            if ennemi[0] > ecran_bord:
-                if last_scroll < scroll:
-                    ennemi[0] -= plvitesse_mouv
-                if last_scroll > scroll:
-                    ennemi[0] += plvitesse_mouv
-            elif last_scroll > scroll:
-                ennemi[0] -= (ennemi_vitesse_mouv - plvitesse_mouv)
-            elif last_scroll < scroll:
-                ennemi[0] -= (ennemi_vitesse_mouv + plvitesse_mouv)
-            else:
-                ennemi[0] -= ennemi_vitesse_mouv
-        else:
-            if last_scroll > scroll:
-                ennemi[0] += (ennemi_vitesse_mouv + plvitesse_mouv)
-            elif last_scroll < scroll:
-                ennemi[0] += (ennemi_vitesse_mouv - plvitesse_mouv)
-            else:
-                ennemi[0] += ennemi_vitesse_mouv
-
-        if not ennemi[4]:  # reste pas sur plateforme
-            ennemi_movement_y(ennemi)
-        else:
-            check_mouv_dg_ennemi(ennemi)
-
-
-def ennemi_movement_y(ennemi):
-    """Pour savoir si un ennemi doit descendre"""
-    global floor_base
-    for plateforme in plateforme_liste:
-        if ennemi[1] + taille_ennemi_y <= plateforme[1] and ennemi[0] + taille_ennemi_x > plateforme[0] and \
-                ennemi[0] < plateforme[0] + taille_plateforme:
-            ennemi[2] = plateforme[1]
-            ennemi_fall(ennemi)
-            return
-        else:
-            ennemi[2] = floor_base
-    if (ennemi[1] + taille_ennemi_y) != ennemi[2]:
-        ennemi_fall(ennemi)
-    return
-
-
-def ennemi_fall(ennemi):
-    """Pour faire descendre un ennemi"""
-    if ennemi[1] + taille_ennemi_y + ennemi_vitesse_mouv_bas < ennemi[2]:
-        ennemi[1] += ennemi_vitesse_mouv_bas
-    else:
-        ennemi[1] = ennemi[2] - taille_ennemi_y
-
-
-def check_mouv_dg_ennemi(ennemi):
-    global taille_ennemi_x, taille_ennemi_y, taille_plateforme
-    if not ennemi[5]:
-        for plateforme in plateforme_liste:
-            if ennemi[1] + taille_ennemi_y == plateforme[1] and \
-                    ennemi[0] < plateforme[0] < ennemi[0] + taille_ennemi_x:
-                for plateforme2 in plateforme_liste:
-                    if ennemi[1] + taille_ennemi_y == plateforme2[1] and \
-                            ennemi[0] < plateforme2[0] + taille_plateforme < ennemi[0] + taille_ennemi_x:
-                        return
-                ennemi[5] = True
-                return
-    else:
-        for plateforme in plateforme_liste:
-            if ennemi[1] + taille_ennemi_y == plateforme[1] and ennemi[0] < plateforme[0] + taille_plateforme < \
-                    ennemi[0] + taille_ennemi_x:
-                for plateforme2 in plateforme_liste:
-                    if ennemi[1] + taille_ennemi_y == plateforme2[1] and \
-                            ennemi[0] < plateforme2[0] < ennemi[0] + taille_ennemi_x:
-                        return
-                ennemi[5] = False
-                return
-    return
-
-
-def floor_is():
-    """Définit le sol du perso à un moment donné, pour savoir si celui-ci doit descendre ou rester à la même hauteur"""
-    global floor
-    for plateforme in plateforme_liste:
-        if perso_y + taille_perso_y <= plateforme[1] and perso_x + taille_perso_x > plateforme[0] and perso_x < \
-                plateforme[0] + taille_plateforme:
-            floor = plateforme[1]
-            return
-    floor = 192
-    return
+class ennemi:
+  def __init__(self):
+    
+  
+  def ennemi_creation(y, ennemi_floor, reste_sur_plateforme):
+      """Création d'ennemi dependant un niveau"""
+      global ecran_bord
+      # dans ennemi_liste: x l'ennemi, y l'ennemi, le sol de l'ennemi reste sur plateforme ou non?,
+      # sens inverse (Faux au début)
+      ennemi = [ecran_bord, y, ennemi_floor]
+      if reste_sur_plateforme:
+          ennemi.append(True)
+      else:
+          ennemi.append(False)
+      ennemi.append(False)  # pour aller vers la gauche (sense normal)
+      ennemi_liste.append(ennemi)
+  
+  
+  def ennemi_deplacement():
+      """Tous les déplacements de tous les ennemis"""
+      for ennemi in ennemi_liste:
+          if not ennemi[5]:  # sens de mouvement normal
+              if ennemi[0] > ecran_bord:
+                  if last_scroll < scroll:
+                      ennemi[0] -= plvitesse_mouv
+                  if last_scroll > scroll:
+                      ennemi[0] += plvitesse_mouv
+              elif last_scroll > scroll:
+                  ennemi[0] -= (ennemi_vitesse_mouv - plvitesse_mouv)
+              elif last_scroll < scroll:
+                  ennemi[0] -= (ennemi_vitesse_mouv + plvitesse_mouv)
+              else:
+                  ennemi[0] -= ennemi_vitesse_mouv
+          else:
+              if last_scroll > scroll:
+                  ennemi[0] += (ennemi_vitesse_mouv + plvitesse_mouv)
+              elif last_scroll < scroll:
+                  ennemi[0] += (ennemi_vitesse_mouv - plvitesse_mouv)
+              else:
+                  ennemi[0] += ennemi_vitesse_mouv
+  
+          if not ennemi[4]:  # reste pas sur plateforme
+              ennemi_movement_y(ennemi)
+          else:
+              check_mouv_dg_ennemi(ennemi)
+  
+  
+  def ennemi_movement_y(ennemi):
+      """Pour savoir si un ennemi doit descendre"""
+      global floor_base
+      for plateforme in plateforme_liste:
+          if ennemi[1] + taille_ennemi_y <= plateforme[1] and ennemi[0] + taille_ennemi_x > plateforme[0] and \
+                  ennemi[0] < plateforme[0] + taille_plateforme:
+              ennemi[2] = plateforme[1]
+              ennemi_fall(ennemi)
+              return
+          else:
+              ennemi[2] = floor_base
+      if (ennemi[1] + taille_ennemi_y) != ennemi[2]:
+          ennemi_fall(ennemi)
+      return
+  
+  
+  def ennemi_fall(ennemi):
+      """Pour faire descendre un ennemi"""
+      if ennemi[1] + taille_ennemi_y + ennemi_vitesse_mouv_bas < ennemi[2]:
+          ennemi[1] += ennemi_vitesse_mouv_bas
+      else:
+          ennemi[1] = ennemi[2] - taille_ennemi_y
+  
+  
+  def check_mouv_dg_ennemi(ennemi):
+      global taille_ennemi_x, taille_ennemi_y, taille_plateforme
+      if not ennemi[5]:
+          for plateforme in plateforme_liste:
+              if ennemi[1] + taille_ennemi_y == plateforme[1] and \
+                      ennemi[0] < plateforme[0] < ennemi[0] + taille_ennemi_x:
+                  for plateforme2 in plateforme_liste:
+                      if ennemi[1] + taille_ennemi_y == plateforme2[1] and \
+                              ennemi[0] < plateforme2[0] + taille_plateforme < ennemi[0] + taille_ennemi_x:
+                          return
+                  ennemi[5] = True
+                  return
+      else:
+          for plateforme in plateforme_liste:
+              if ennemi[1] + taille_ennemi_y == plateforme[1] and ennemi[0] < plateforme[0] + taille_plateforme < \
+                      ennemi[0] + taille_ennemi_x:
+                  for plateforme2 in plateforme_liste:
+                      if ennemi[1] + taille_ennemi_y == plateforme2[1] and \
+                              ennemi[0] < plateforme2[0] < ennemi[0] + taille_ennemi_x:
+                          return
+                  ennemi[5] = False
+                  return
+      return
 
 
 def reset():
@@ -681,8 +673,6 @@ class App:
             if last_scroll != scroll:
                 plateforme_deplacement()
                 deplacement_avec_plateforme(star_liste)
-                deplacement_avec_plateforme_deco(arbre_liste)
-                deplacement_avec_plateforme_deco(buisson_liste)
 
             ennemi_deplacement()
             floor_is()
