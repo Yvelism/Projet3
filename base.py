@@ -1,6 +1,6 @@
 import pyxel
 
-# personage
+# personnage
 perso_x = 128
 perso_y = 182
 taille_perso_x = 10
@@ -74,95 +74,91 @@ hauteur_2_star = hauteur_2 - taille_star_y
 hauteur_3_star = hauteur_3 - taille_star_y
 regular_points = 25
 
-# background et déco
-background = 0
-arbre_liste = [[ecran_bord, 20], [ecran_bord, 100], [ecran_bord, 200], [ecran_bord, 260], [ecran_bord, 280],
-               [ecran_bord, 340], [ecran_bord, 380], [ecran_bord, 450], [ecran_bord, 490]]
-buisson_liste = [[ecran_bord, 40], [ecran_bord, 135], [ecran_bord, 145], [ecran_bord, 240], [ecran_bord, 300],
-                 [ecran_bord, 410], [ecran_bord, 470]]
-# dans arbre_liste et buisson_liste [x, scroll d'apparition]
 tuto = False
 
+class Perso:
+  def __init__(self):
 
-def perso_deplacement():
-    """Déplacement du personnage"""
-    global perso_x, perso_y, jump, scroll, last_scroll, last_floor, monte, descente, \
-        continuous_scroll, vie, ennemi_liste, last_perso_x, tuto
-    last_scroll = scroll
-    last_perso_x = perso_x
-    if pyxel.btn(pyxel.KEY_RIGHT):
-        if perso_x < scroll_limitd:
-            perso_x = perso_x + pvitesse_mouv_dg
-        else:
-            scroll += 1
-            continuous_scroll += 1
-    if pyxel.btn(pyxel.KEY_LEFT):
-        if perso_x > scroll_limitg:
-            perso_x = perso_x - pvitesse_mouv_dg
-        elif scroll > 0:
-            scroll -= 1
+    
+  def perso_deplacement():
+      """Déplacement du personnage"""
+      global perso_x, perso_y, jump, scroll, last_scroll, last_floor, monte, descente, \
+          continuous_scroll, vie, ennemi_liste, last_perso_x, tuto
+      last_scroll = scroll
+      last_perso_x = perso_x
+      if pyxel.btn(pyxel.KEY_RIGHT):
+          if perso_x < scroll_limitd:
+              perso_x = perso_x + pvitesse_mouv_dg
+          else:
+              scroll += 1
+              continuous_scroll += 1
+      if pyxel.btn(pyxel.KEY_LEFT):
+          if perso_x > scroll_limitg:
+              perso_x = perso_x - pvitesse_mouv_dg
+          elif scroll > 0:
+              scroll -= 1
+  
+      if pyxel.btn(pyxel.KEY_SPACE):
+          tuto = False
+          if not jump:
+              last_floor = perso_y + taille_perso_y
+              jump = True
+  
+      if jump:
+          # si la hauteur n'est pas encore atteinte : commencer ou continuer à monter
+          if last_floor - taille_saut - taille_perso_y <= perso_y and not descente:
+              monte = True
+          else:  # si la hauteur du saut est atteinte : commencer à descendre
+              monte = False
+              descente = True
+              # si le personage est atterri sur le sol (qui peut être une plateforme) : fin du saut et
+              # réinitialisé emplacement (perso_y) pour être bien aligné
+              if perso_y + taille_perso_y + pvitesse_mouv_bas >= floor:
+                  descente = False
+                  perso_y = floor - taille_perso_y
+                  jump = False
+      else:
+          # teste si le personnage n'est pas sur le sol
+          if perso_y + taille_perso_y != floor:
+              if perso_y + taille_perso_y + pvitesse_mouv_bas < floor:
+                  descente = True
+              else:
+                  # réinitialiser perso_y pour qu'il ne se retrouve pas dans une plateforme ou dans le sol
+                  perso_y = floor - taille_perso_y
+                  descente = False
+                  monte = False
+      if monte:
+          perso_y = perso_y - pvitesse_mouv_haut
+      if descente:
+          perso_y = perso_y + pvitesse_mouv_bas
+      if len(ennemi_liste) != 0:  # vérifier s'il y a un contact entre le personnage et les ennemies
+          contact()
+      contact_star()
+      return
 
-    if pyxel.btn(pyxel.KEY_SPACE):
-        tuto = False
-        if not jump:
-            last_floor = perso_y + taille_perso_y
-            jump = True
-
-    if jump:
-        # si la hauteur n'est pas encore atteinte : commencer ou continuer à monter
-        if last_floor - taille_saut - taille_perso_y <= perso_y and not descente:
-            monte = True
-        else:  # si la hauteur du saut est atteinte : commencer à descendre
-            monte = False
-            descente = True
-            # si le personage est atterri sur le sol (qui peut être une plateforme) : fin du saut et
-            # réinitialisé emplacement (perso_y) pour être bien aligné
-            if perso_y + taille_perso_y + pvitesse_mouv_bas >= floor:
-                descente = False
-                perso_y = floor - taille_perso_y
-                jump = False
-    else:
-        # teste si le personnage n'est pas sur le sol
-        if perso_y + taille_perso_y != floor:
-            if perso_y + taille_perso_y + pvitesse_mouv_bas < floor:
-                descente = True
-            else:
-                # réinitialiser perso_y pour qu'il ne se retrouve pas dans une plateforme ou dans le sol
-                perso_y = floor - taille_perso_y
-                descente = False
-                monte = False
-    if monte:
-        perso_y = perso_y - pvitesse_mouv_haut
-    if descente:
-        perso_y = perso_y + pvitesse_mouv_bas
-    if len(ennemi_liste) != 0:  # vérifier s'il y a un contact entre le personnage et les ennemies
-        contact()
-    contact_star()
-    return
-
-
-def contact():
-    """Savoir s'il y a contact entre l'ennemi et le personnage"""
-    global vie, touche
-    for ennemi in ennemi_liste:
-        if perso_y < ennemi[1] + taille_ennemi_y and perso_y + taille_perso_y > ennemi[1] \
-                and perso_x + taille_perso_x > ennemi[0] and perso_x < ennemi[0] + taille_ennemi_x:
-            vie -= 1
-            touche = True
-            ennemi_liste.remove(ennemi)
-            #pyxel.play(2, 1)
-    return
-
-
-def contact_star():
-    global points, regular_points
-    for star in star_liste:
-        if perso_y < star[1] + taille_star_y and perso_y + taille_perso_y > star[1] \
-                and perso_x + taille_perso_x > star[0] and perso_x < star[0] + taille_star_x:
-            points += regular_points
-            star_liste.remove(star)
-            #pyxel.play(2, 2)
-            return
+  
+  def contact():
+      """Savoir s'il y a contact entre l'ennemi et le personnage"""
+      global vie, touche
+      for ennemi in ennemi_liste:
+          if perso_y < ennemi[1] + taille_ennemi_y and perso_y + taille_perso_y > ennemi[1] \
+                  and perso_x + taille_perso_x > ennemi[0] and perso_x < ennemi[0] + taille_ennemi_x:
+              vie -= 1
+              touche = True
+              ennemi_liste.remove(ennemi)
+              #pyxel.play(2, 1)
+      return
+  
+  
+  def contact_star():
+      global points, regular_points
+      for star in star_liste:
+          if perso_y < star[1] + taille_star_y and perso_y + taille_perso_y > star[1] \
+                  and perso_x + taille_perso_x > star[0] and perso_x < star[0] + taille_star_x:
+              points += regular_points
+              star_liste.remove(star)
+              #pyxel.play(2, 2)
+              return
 
 
 def plateforme_deplacement():
