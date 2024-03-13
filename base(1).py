@@ -1,21 +1,16 @@
 import pyxel
 
 # personnage
-perso_x = 128
-perso_y = 182
 taille_perso_x = 10
 taille_perso_y = 15
-
 # saut
-jump = False
 taille_saut = 56
 
 # mouvement perso
 pvitesse_mouv_dg = 2.5  # vitesse de mouvement du personnage vers la gauche ou la droite (mouvement horizontal)
 pvitesse_mouv_haut = 7  # vitesse de mouvement du personnage en montée (vers le haut)
 pvitesse_mouv_bas = 8  # vitesse de mouvement du personnage en descente (vers le haut)
-monte = False
-descente = False
+
 
 # general
 playing = 0  # variable pour changer entre les différent(e)s vues/écrans du jeu
@@ -43,7 +38,6 @@ hauteur_1 = 60
 hauteur_2 = 90
 hauteur_3 = 115
 # 2 hauteurs fixent pour les plateformes
-plateforme_liste = []
 taille_plateforme = 8
 plvitesse_mouv = pvitesse_mouv_dg  # vitesse de mouvement des plateformes
 
@@ -74,121 +68,123 @@ tuto = False
 
 
 class Perso:
-  def __init__(self,compteuranimation1=True,compteuranimation2=True,avatar1=True,avatar2=False,avatar3=False,touche=False):
+  def __init__(self,perso_x=128,perso_y=182,jump = False,compteuranimation1=True,compteuranimation2=True,avatar1=True,\
+               avatar2=False,avatar3=False,touche=False,monte = False, descente = False):
+      self.perso_x=perso_x
+      self.perso_y=perso_y
+      self.jump=jump
       self.avatar1=avatar1
       self.avatar2=avatar2
       self.avatar3=avatar3
-      self.compteuranimation1=compteuranimation
+      self.compteuranimation1=compteuranimation1
       self.compteuranimation2=compteuranimation2
       self.touche=touche
+      self.monte=monte
+      self.descente=descente
       
   def drawanimation(self):
      
-    if compteur_animation_1:
-        if avatar_1== True:
-            pyxel.blt(perso_x, perso_y, 0, 100, 34, -taille_perso_x, taille_perso_y, 0)
-        elif avatar_2 == True:
-            pyxel.blt(perso_x, perso_y, 0, 116, 74, -taille_perso_x, taille_perso_y, 0)
-        elif avatar_3 == True:
-            pyxel.blt(perso_x, perso_y, 0, 132, 58, -taille_perso_x, taille_perso_y, 12)
+    if self.compteuranimation1:
+        if self.avatar_1:
+            pyxel.blt(self.perso_x, self.perso_y, 0, 100, 34, -taille_perso_x, taille_perso_y, 0)#coordonees a adapter aux graphismes (darina)
+        elif self.avatar_2:
+            pyxel.blt(self.perso_x, self.perso_y, 0, 116, 74, -taille_perso_x, taille_perso_y, 0)
+        elif self.avatar_3 :
+            pyxel.blt(self.perso_x, self.perso_y, 0, 132, 58, -taille_perso_x, taille_perso_y, 0)
 
-    else:
-        if avatar_1== True:
-            pyxel.blt(perso_x, perso_y, 0, 84, 34, -taille_perso_x, taille_perso_y, 0)
-        elif avatar_2 == True:
-            pyxel.blt(perso_x, perso_y, 0, 116, 58, -taille_perso_x, taille_perso_y, 0)
-        elif avatar_3 == True:
-            pyxel.blt(perso_x, perso_y, 0, 132, 74, -taille_perso_x, taille_perso_y, 12)
+    elif self.compteuranimation2:
+        if self.avatar_1:
+            pyxel.blt(self.perso_x, self.perso_y, 0, 84, 34, -taille_perso_x, taille_perso_y, 0)
+        elif self.avatar_2:
+            pyxel.blt(self.perso_x, self.perso_y, 0, 116, 58, -taille_perso_x, taille_perso_y, 0)
+        elif self.avatar_3:
+            pyxel.blt(self.perso_x, self.perso_y, 0, 132, 74, -taille_perso_x, taille_perso_y, 0)
 
       
       
-      
-  def perso_deplacement():
+  def perso_deplacement(self, ennemi_liste):
       """Déplacement du personnage"""
-      global perso_x, perso_y, jump, scroll, last_scroll, last_floor, monte, descente, \
-          continuous_scroll, vie, ennemi_liste, last_perso_x, tuto
+      global scroll, last_scroll, last_floor, continuous_scroll, vie, last_perso_x, tuto
       last_scroll = scroll
-      last_perso_x = perso_x
+      last_perso_x = self.perso_x
       if pyxel.btn(pyxel.KEY_RIGHT):
-          if perso_x < scroll_limitd:
-              perso_x = perso_x + pvitesse_mouv_dg
+          if self.perso_x < scroll_limitd:
+              self.set_perso_x(self.perso_x + pvitesse_mouv_dg)
           else:
               scroll += 1
               continuous_scroll += 1
       if pyxel.btn(pyxel.KEY_LEFT):
-          if perso_x > scroll_limitg:
-              perso_x = perso_x - pvitesse_mouv_dg
+          if self.perso_x > scroll_limitg:
+              self.set_perso_x(self.perso_x - pvitesse_mouv_dg)
           elif scroll > 0:
               scroll -= 1
   
       if pyxel.btn(pyxel.KEY_SPACE):
           tuto = False
-          if not jump:
-              last_floor = perso_y + taille_perso_y
-              jump = True
+          if not self.jump:
+              last_floor = self.perso_y + taille_perso_y
+              self.set_jump(True)
   
-      if jump:
+      if self.jump:
           # si la hauteur n'est pas encore atteinte : commencer ou continuer à monter
-          if last_floor - taille_saut - taille_perso_y <= perso_y and not descente:
-              monte = True
+          if last_floor - taille_saut - taille_perso_y <= self.perso_y and not self.descente:
+              self.set_monte(True)
           else:  # si la hauteur du saut est atteinte : commencer à descendre
-              monte = False
-              descente = True
+              self.set_monte(False)
+              self.set_descente(True)
               # si le personage est atterri sur le sol (qui peut être une plateforme) : fin du saut et
               # réinitialisé emplacement (perso_y) pour être bien aligné
-              if perso_y + taille_perso_y + pvitesse_mouv_bas >= floor:
-                  descente = False
-                  perso_y = floor - taille_perso_y
-                  jump = False
+              if self.perso_y + taille_perso_y + pvitesse_mouv_bas >= floor:
+                  self.set_descente(False)
+                  self.set_perso_y(floor - taille_perso_y)
+                  self.set_jump(False)
       else:
           # teste si le personnage n'est pas sur le sol
-          if perso_y + taille_perso_y != floor:
-              if perso_y + taille_perso_y + pvitesse_mouv_bas < floor:
-                  descente = True
+          if self.perso_y + taille_perso_y != floor:
+              if self.perso_y + taille_perso_y + pvitesse_mouv_bas < floor:
+                  self.set_descente(True)
               else:
                   # réinitialiser perso_y pour qu'il ne se retrouve pas dans une plateforme ou dans le sol
-                  perso_y = floor - taille_perso_y
-                  descente = False
-                  monte = False
-      if monte:
-          perso_y = perso_y - pvitesse_mouv_haut
-      if descente:
-          perso_y = perso_y + pvitesse_mouv_bas
+                  self.set_perso_y(floor - taille_perso_y)
+                  self.set_descente(False)
+                  self.set_monte(False)
+      if self.monte:
+          self.set_perso_y(self.perso_y - pvitesse_mouv_haut)
+      if self.descente:
+          self.set_perso_y(self.perso_y + pvitesse_mouv_bas)
       if len(ennemi_liste) != 0:  # vérifier s'il y a un contact entre le personnage et les ennemies
-          contact()
-      contact_star()
+          self.contact()
+      self.contact_star()
       return
 
   
-  def contact():
+  def contact(self, ennemi_liste):
       """Savoir s'il y a contact entre l'ennemi et le personnage"""
-      global vie, touche
+      global vie
       for ennemi in ennemi_liste:
-          if perso_y < ennemi[1] + taille_ennemi_y and perso_y + taille_perso_y > ennemi[1] \
-                  and perso_x + taille_perso_x > ennemi[0] and perso_x < ennemi[0] + taille_ennemi_x:
+          if self.perso_y < ennemi[1] + taille_ennemi_y and self.perso_y + taille_perso_y > ennemi[1] \
+                  and self.perso_x + taille_perso_x > ennemi[0] and self.perso_x < ennemi[0] + taille_ennemi_x:
               vie -= 1
-              touche = True
+              self.set_touche(True)
               ennemi_liste.remove(ennemi)
              
       return
   
   
-  def contact_star():
-      global points, regular_points
+  def contact_star(self,star_liste):
       for star in star_liste:
-          if perso_y < star[1] + taille_star_y and perso_y + taille_perso_y > star[1] \
-                  and perso_x + taille_perso_x > star[0] and perso_x < star[0] + taille_star_x:
-              points += regular_points
+          if self.perso_y < star[1] + taille_star_y and self.perso_y + taille_perso_y > star[1] \
+                  and self.perso_x + taille_perso_x > star[0] and self.perso_x < star[0] + taille_star_x:
               star_liste.remove(star)
              
               return
     
-  def floor_is():
+  def floor_is(self, plateforme_liste):
       """Définit le sol du perso à un moment donné, pour savoir si celui-ci doit descendre ou rester à la même hauteur"""
       global floor
       for plateforme in plateforme_liste:
-          if perso_y + taille_perso_y <= plateforme[1] and perso_x + taille_perso_x > plateforme[0] and perso_x < \
-                  plateforme[0] + taille_plateforme:
+          if self.perso_y + taille_perso_y <= plateforme[1] and self.perso_x + taille_perso_x > plateforme[0] and\
+              self.perso_x < plateforme[0] + taille_plateforme:
               floor = plateforme[1]
               return
       floor = 192
@@ -197,17 +193,18 @@ class Perso:
 
 
 class plateforme:
-  def __init__(self):
+  def __init__(self,l=[]):
+      self.liste=l
       
-  def plateforme_deplacement():
+  def plateforme_deplacement(self):
       """Déplacement des plateformes"""
       if last_scroll > scroll:
-          for plateforme in plateforme_liste:
+          for plateforme in self.liste:
               if plateforme[2] < scroll:
                   plateforme[0] += plvitesse_mouv
           return
       if last_scroll < scroll:
-          for plateforme in plateforme_liste:
+          for plateforme in self.liste:
               if plateforme[2] < scroll:
                   plateforme[0] -= plvitesse_mouv
           return
@@ -215,15 +212,15 @@ class plateforme:
   
   
   
-  def deplacement_avec_plateforme(liste):
-      """Déplacement des stars"""
+  def deplacement_avec_plateforme(self,listetoile):
+      """Déplacement des etoiles avecles plateformes"""
       if last_scroll > scroll:
-          for element in liste:
+          for element in listetoile:
               if element[2] < scroll:
                   element[0] += plvitesse_mouv
           return
       if last_scroll < scroll:
-          for element in liste:
+          for element in listetoile:
               if element[2] < scroll:
                   element[0] -= plvitesse_mouv
           return
@@ -231,13 +228,13 @@ class plateforme:
 
 
 class ennemi:
-  def __init__(self):
-    
+  def __init__(self,l=[]):
+    self.liste=l
   
-  def ennemi_creation(y, ennemi_floor, reste_sur_plateforme):
+  def ennemi_creation(self,y, ennemi_floor, reste_sur_plateforme):
       """Création d'ennemi dependant un niveau"""
       global ecran_bord
-      # dans ennemi_liste: x l'ennemi, y l'ennemi, le sol de l'ennemi reste sur plateforme ou non?,
+      # dans ennemi_liste: x de l'ennemi, y dev l'ennemi, le sol de l'ennemi, reste sur plateforme ou non?,
       # sens inverse (Faux au début)
       ennemi = [ecran_bord, y, ennemi_floor]
       if reste_sur_plateforme:
@@ -245,12 +242,13 @@ class ennemi:
       else:
           ennemi.append(False)
       ennemi.append(False)  # pour aller vers la gauche (sense normal)
-      ennemi_liste.append(ennemi)
+      self.liste.append(ennemi)
   
-  
-  def ennemi_deplacement():
+
+  def ennemi_deplacement(self):
+      global ecran_bord,last_scroll,scroll,plvitesse_mouv,ennemi_vitesse_mouv
       """Tous les déplacements de tous les ennemis"""
-      for ennemi in ennemi_liste:
+      for ennemi in self.liste:
           if not ennemi[5]:  # sens de mouvement normal
               if ennemi[0] > ecran_bord:
                   if last_scroll < scroll:
@@ -272,36 +270,37 @@ class ennemi:
                   ennemi[0] += ennemi_vitesse_mouv
   
           if not ennemi[4]:  # reste pas sur plateforme
-              ennemi_movement_y(ennemi)
+              self.ennemi_movement_y(ennemi)
           else:
-              check_mouv_dg_ennemi(ennemi)
+              self.check_mouv_dg_ennemi(ennemi)
   
   
-  def ennemi_movement_y(ennemi):
+  def ennemi_movement_y(self,ennemi,plateforme_liste):
       """Pour savoir si un ennemi doit descendre"""
       global floor_base
       for plateforme in plateforme_liste:
           if ennemi[1] + taille_ennemi_y <= plateforme[1] and ennemi[0] + taille_ennemi_x > plateforme[0] and \
                   ennemi[0] < plateforme[0] + taille_plateforme:
               ennemi[2] = plateforme[1]
-              ennemi_fall(ennemi)
+              self.ennemi_fall(ennemi)
               return
           else:
               ennemi[2] = floor_base
       if (ennemi[1] + taille_ennemi_y) != ennemi[2]:
-          ennemi_fall(ennemi)
+          self.ennemi_fall(ennemi)
       return
   
-  
-  def ennemi_fall(ennemi):
+
+      
+  def ennemi_fall(self,ennemi):
       """Pour faire descendre un ennemi"""
       if ennemi[1] + taille_ennemi_y + ennemi_vitesse_mouv_bas < ennemi[2]:
           ennemi[1] += ennemi_vitesse_mouv_bas
       else:
           ennemi[1] = ennemi[2] - taille_ennemi_y
   
-  
-  def check_mouv_dg_ennemi(ennemi):
+    
+  def check_mouv_dg_ennemi(self,ennemi,plateforme_liste):
       global taille_ennemi_x, taille_ennemi_y, taille_plateforme
       if not ennemi[5]:
           for plateforme in plateforme_liste:
@@ -326,41 +325,41 @@ class ennemi:
       return
 
 
-def reset():
+def reset(perso):
     """Remettre les variables à leur valeur de base"""
-    global perso_x, perso_y, jump, monte, descente, scroll, continuous_scroll, floor, last_floor, \
+    global  scroll, continuous_scroll, floor, last_floor, \
         last_scroll, vie, ennemi_liste, ennemi_vitesse_mouv, points, \
         star_liste, last_perso_x
-    perso_x = 128
-    perso_y = 182
-    jump = False
-    monte = False
-    descente = False
+    perso.set_descente(False)
+    perso.set_jump(False)
+    perso.set_monte(False)
+    perso.set_perso_x(128)
+    perso.set_perso_y(182)
     scroll = 0
     continuous_scroll = 0
     floor = 190
     last_floor = floor
     last_scroll = scroll
     vie = 3
-    ennemi_liste = []
     ennemi_vitesse_mouv = 1
     points = 0
+    ennemi_liste= ennemi()
     star_liste = []  # à enlever quand les stars seront presente dans tous les niveaux
-    last_perso_x = perso_x
+    last_perso_x = perso.get_perso_x()
     
 class App:
     def __init__(self):
         pyxel.init(256, 256, title="Sugarush")
         pyxel.load("art.pyxres")
         pyxel.run(self.update, self.draw)
-    
-    def update():
+       
+    def update(self):
         """Mise à jour des variables (30 fois par seconde)"""
-
+        
         global scroll, last_scroll, plateforme_liste, floor, playing, continuous_scroll, taille_ennemi_y, vie, \
             niveau, compteur, ennemi_vitesse_mouv, star_liste, star1, \
-            star2, star3, regular_points, tuto, avatar_1, avatar_2, avatar_3
-
+            star2, star3, regular_points, tuto, perso
+        reset()
         # boutons toujours utilisable
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
@@ -372,7 +371,7 @@ class App:
            
 
         if pyxel.btnp(pyxel.KEY_F):
-            print("here", scroll, perso_x)
+            print("here", scroll, perso.get_perso_x())
 
         if playing == 0:
             if pyxel.btn(pyxel.KEY_S):
@@ -388,23 +387,26 @@ class App:
 
         if playing == 5:
             if pyxel.btnp(pyxel.KEY_1):
-                avatar_1 = True
-                avatar_2, avatar_3 = False, False
+                perso.set_avatar_1(True)
+                perso.set_avatar_2(False)
+                perso.set_avatar_3(False)
                 playing = 0
             if pyxel.btnp(pyxel.KEY_2):
-                avatar_2 = True
-                avatar_1, avatar_3 = False, False
+                perso.set_avatar_1(False)
+                perso.set_avatar_2(True)
+                perso.set_avatar_3(False)
                 playing = 0
             if pyxel.btnp(pyxel.KEY_3):
-                avatar_3 = True
-                avatar_1, avatar_2 = False, False
+                perso.set_avatar_1(False)
+                perso.set_avatar_2(False)
+                perso.set_avatar_3(True)
                 playing = 0
 
         if playing == 1:
             if niveau == 1:
                 if compteur == 0:
                     reset()
-                    plateforme_liste = [[ecran_bord, hauteur_1, 1], [ecran_bord, hauteur_1, 3], [ecran_bord, hauteur_1, 5],
+                    plateforme_liste = plateforme([[ecran_bord, hauteur_1, 1], [ecran_bord, hauteur_1, 3], [ecran_bord, hauteur_1, 5],
                                         [ecran_bord, hauteur_1, 16], [ecran_bord, hauteur_1, 18],
                                         [ecran_bord, hauteur_1, 20],
                                         [ecran_bord, hauteur_2, 25], [ecran_bord, hauteur_2, 27],
@@ -446,28 +448,25 @@ class App:
                                         [ecran_bord, hauteur_1, 234], [ecran_bord, hauteur_1, 236],
                                         [ecran_bord, hauteur_1, 238],
                                         [ecran_bord, hauteur_1, 240], [ecran_bord, hauteur_1, 242],
-                                        [ecran_bord, hauteur_1, 244]]
+                                        [ecran_bord, hauteur_1, 244]])
                     # dans plateforme_liste [x, y, scroll d'apparition] qui utilise deux hauteurs y différentes et
                     # toujours le même bord x
                     star_liste = [[ecran_bord, hauteur_3_star, 47], [ecran_bord, hauteur_0_star, 60],
                                 [ecran_bord, hauteur_2_star, 118], [ecran_bord, hauteur_3_star, 159],
                                 [ecran_bord, hauteur_2_star, 220], [ecran_bord, hauteur_1_star, 243]]
-                    star3 = len(star_liste) * regular_points
-                    star2 = round((len(star_liste) * regular_points) * 0.66)
-                    star1 = round((len(star_liste) * regular_points) * 0.33)
                     # dans star_liste [x, y, scroll d'apparition]
                     compteur += 1
-
+                
                     #  ennemi_creation(y, ennemi_floor, reste_sur_plateforme)
                 if (continuous_scroll == 20 or continuous_scroll == 60 or continuous_scroll == 240) and \
                         last_scroll != scroll:
-                    ennemi_creation(floor - taille_ennemi_y, floor, False,
+                    ennemi_liste.ennemi_creation(floor - taille_ennemi_y, floor, False,
                                     False)  # création d'ennemi au sol normal 
                 if continuous_scroll == 138 and last_scroll != scroll:
-                    ennemi_creation(hauteur_1 - taille_ennemi_y, hauteur_1, False,
+                    ennemi_liste.ennemi_creation(hauteur_1 - taille_ennemi_y, hauteur_1, False,
                                     True)  # création d'ennemi à la hauteur 1 
                 if continuous_scroll == 100 and last_scroll != scroll:
-                    ennemi_creation(hauteur_2 - taille_ennemi_y, hauteur_2, False,
+                    ennemi_liste.ennemi_creation(hauteur_2 - taille_ennemi_y, hauteur_2, False,
                                     False)  # création d'ennemi à la hauteur 2 
 
                 if scroll >= 290:
@@ -477,7 +476,7 @@ class App:
             if niveau == 2:
                 if compteur == 0:
                     reset()
-                    plateforme_liste = [[200, hauteur_1, 0], [202, hauteur_1, 0], [204, hauteur_1, 0],
+                    plateforme_liste =plateforme([[200, hauteur_1, 0], [202, hauteur_1, 0], [204, hauteur_1, 0],
                                         [ecran_bord, hauteur_1, 10], [ecran_bord, hauteur_1, 12],
                                         [ecran_bord, hauteur_1, 14],
                                         [ecran_bord, hauteur_1, 16], [ecran_bord, hauteur_1, 18],
@@ -531,7 +530,7 @@ class App:
                                         [ecran_bord, hauteur_2, 316], [ecran_bord, hauteur_2, 318],
                                         [ecran_bord, hauteur_2, 320],
                                         [ecran_bord, hauteur_1, 332], [ecran_bord, hauteur_1, 334],
-                                        [ecran_bord, hauteur_1, 336]]
+                                        [ecran_bord, hauteur_1, 336]])
                     # dans plateforme_liste [x, y, scroll d'apparition] qui utilise deux hauteurs y différentes et
                     # toujours le même bord x
                     star_liste = [[203, hauteur_1_star, 0], [ecran_bord, hauteur_2_star, 27],
@@ -549,12 +548,12 @@ class App:
                 if (continuous_scroll == 14 or continuous_scroll == 50 or continuous_scroll == 90 or
                     continuous_scroll == 200 or continuous_scroll == 230 or continuous_scroll == 249 or
                     continuous_scroll == 290) and last_scroll != scroll:
-                    ennemi_creation(floor - taille_ennemi_y, floor, False, False)
+                    ennemi_liste.ennemi_creation(floor - taille_ennemi_y, floor, False, False)
                 if (continuous_scroll == 41 or continuous_scroll == 180 or continuous_scroll == 302) and \
                         last_scroll != scroll:
-                    ennemi_creation(hauteur_1 - taille_ennemi_y, hauteur_1, False, True)
+                    ennemi_liste.ennemi_creation(hauteur_1 - taille_ennemi_y, hauteur_1, False, True)
                 if (continuous_scroll == 29 or continuous_scroll == 138) and last_scroll != scroll:
-                    ennemi_creation(hauteur_2 - taille_ennemi_y, hauteur_2, False, False)
+                    ennemi_liste.ennemi_creation(hauteur_2 - taille_ennemi_y, hauteur_2, False, False)
                 if scroll >= 400:
                     playing = 2
                    
@@ -563,7 +562,7 @@ class App:
                 if compteur == 0:
                  
                     reset()
-                    plateforme_liste = [[ecran_bord, hauteur_1, 4], [ecran_bord, hauteur_1, 6],
+                    plateforme_liste = plateforme([[ecran_bord, hauteur_1, 4], [ecran_bord, hauteur_1, 6],
                                         [ecran_bord, hauteur_1, 8], [ecran_bord, hauteur_1, 10],
                                         [ecran_bord, hauteur_1, 12], [ecran_bord, hauteur_1, 14],
                                         [ecran_bord, hauteur_1, 16],
@@ -649,7 +648,7 @@ class App:
                                         [ecran_bord, hauteur_3, 646], [ecran_bord, hauteur_3, 664],
                                         [ecran_bord, hauteur_3, 666], [ecran_bord, hauteur_3, 668],
                                         [ecran_bord, hauteur_1, 680], [ecran_bord, hauteur_1, 682],
-                                        [ecran_bord, hauteur_1, 684], [ecran_bord, hauteur_1, 686], ]
+                                        [ecran_bord, hauteur_1, 684], [ecran_bord, hauteur_1, 686], ])
                     # dans plateforme_liste [x, y, scroll d'apparition] qui utilise deux hauteurs y différentes et
                     # toujours le même bord x
                     star_liste = [[ecran_bord, hauteur_3_star, 50], [ecran_bord, hauteur_3_star, 152],
