@@ -82,6 +82,72 @@ class Perso:
       self.monte=monte
       self.descente=descente
       
+    def get_avatar1(self):
+        return self.avatar1
+          
+    def get_avatar2(self):
+        return self.avatar2
+    
+    def get_avatar3(self):
+        return self.avatar3      
+              
+    def get_compteuranimation1(self):
+        return self.compteuranimation1
+      
+    def get_compteuranimation2(self):
+        return self.compteuranimation2  
+    
+    def get_touche(self):
+        return self.touche
+    
+    def get_perso_x(self):
+        return self.perso_x
+    
+    def get_perso_y(self):
+        return self.perso_y
+    
+    def get_jump(self):
+        return self.jump
+    
+    def get_monte(self):
+        return self.monte
+    
+    def get_descente(self):
+        return self.descente
+    
+    def set_avatar1(self,nv_avatar1):
+        self.avatar1 = nv_avatar1
+    
+    def set_avatar2(self,nv_avatar2):
+        self.avatar2 = nv_avatar2
+    
+    def set_avatar3(self,nv_avatar3):
+        self.avatar3 = nv_avatar3
+    
+    def set_compteuranimation1(self,nv_compteuranimation1):
+        self.compteuranimation1 = nv_compteuranimation1
+    
+    def set_compteuranimation2(self,nv_compteuranimation2):
+        self.compteuranimation2 = nv_compteuranimation2
+    
+    def set_touche(self,nv_touche):
+        self.touche = nv_touche
+    
+    def set_perso_x(self,nv_perso_x):
+        self.perso_x = nv_perso_x
+    
+    def set_perso_y(self,nv_perso_y):
+        self.perso_y = nv_perso_y
+        
+    def set_jump(self,nv_jump):
+        self.jump = nv_jump
+        
+    def set_monte(self,nv_monte):
+        self.monte = nv_monte
+        
+    def set_descente(self,nv_descente):
+        self.descente = nv_descente
+      
   def drawanimation(self):
      
     if self.compteuranimation1:
