@@ -296,26 +296,34 @@ class plateforme:
 class ennemi:
   def __init__(self,l=[]):
     self.liste=l
+
+  def ennemi_creation(self,y, ennemi_floor):
+    """Création d'ennemi"""
+    global ecran_bord
+    # dans ennemi_liste: x de l'ennemi, y dev l'ennemi, le sol de l'ennemi, reste sur plateforme ou non?,
+    # sens inverse (Faux au début)
+    ennemi = [ecran_bord, y, ennemi_floor]
+    ennemi.append(False)  # pour aller vers la gauche (sense normal)
+    self.liste.append(ennemi)
   
-  def ennemi_creation(self,y, ennemi_floor, reste_sur_plateforme):
-      """Création d'ennemi dependant un niveau"""
-      global ecran_bord
-      # dans ennemi_liste: x de l'ennemi, y dev l'ennemi, le sol de l'ennemi, reste sur plateforme ou non?,
-      # sens inverse (Faux au début)
-      ennemi = [ecran_bord, y, ennemi_floor]
-      if reste_sur_plateforme:
-          ennemi.append(True)
-      else:
-          ennemi.append(False)
-      ennemi.append(False)  # pour aller vers la gauche (sense normal)
-      self.liste.append(ennemi)
-  
+
+  def update(self):
+    if (continuous_scroll == 14 or continuous_scroll == 80 or continuous_scroll == 130 or continuous_scroll == 210 or continuous_scroll == 368 or continuous_scroll == 450 or continuous_scroll == 607 or continuous_scroll == 677) and last_scroll != scroll:
+                    ennemi_creation(floor - taille_ennemi_y, floor, True, False)
+    if (continuous_scroll == 27 or continuous_scroll == 390 or continuous_scroll == 590) and last_scroll != scroll:
+        ennemi_creation(hauteur_2 - taille_ennemi_y, hauteur_2, False, False)
+    if ( continuous_scroll == 118 or continuous_scroll == 240 or continuous_scroll == 458) and last_scroll != scroll:
+        ennemi_creation(hauteur_2 - taille_ennemi_y, hauteur_2, False, True)
+    if (continuous_scroll == 96 or continuous_scroll == 200 or continuous_scroll == 302 or continuous_scroll == 408 or continuous_scroll == 642) and last_scroll != scroll:
+        ennemi_creation(hauteur_3 - taille_ennemi_y, hauteur_3, True, True)
+      
+
 
   def ennemi_deplacement(self):
       global ecran_bord,last_scroll,scroll,plvitesse_mouv,ennemi_vitesse_mouv
       """Tous les déplacements de tous les ennemis"""
       for ennemi in self.liste:
-          if not ennemi[5]:  # sens de mouvement normal
+          if not ennemi[4]:  # sens de mouvement normal
               if ennemi[0] > ecran_bord:
                   if last_scroll < scroll:
                       ennemi[0] -= plvitesse_mouv
@@ -334,14 +342,10 @@ class ennemi:
                   ennemi[0] += (ennemi_vitesse_mouv - plvitesse_mouv)
               else:
                   ennemi[0] += ennemi_vitesse_mouv
-  
-          if not ennemi[4]:  # reste pas sur plateforme
-              self.ennemi_movement_y(ennemi)
-          else:
-              self.check_mouv_dg_ennemi(ennemi)
+
   
   
-  def ennemi_movement_y(self,ennemi,plateforme_liste):
+  def ennemi_descentetf(self,ennemi,plateforme_liste):
       """Pour savoir si un ennemi doit descendre"""
       global floor_base
       for plateforme in plateforme_liste:
@@ -391,11 +395,12 @@ class ennemi:
       return
 
 
-def reset(perso):
+def reset():
     """Remettre les variables à leur valeur de base"""
     global  scroll, continuous_scroll, floor, last_floor, \
         last_scroll, vie, ennemi_liste, ennemi_vitesse_mouv, points, \
         star_liste, last_perso_x
+    last_perso_x = perso.get_perso_x()
     perso.set_descente(False)
     perso.set_jump(False)
     perso.set_monte(False)
@@ -411,14 +416,15 @@ def reset(perso):
     points = 0
     ennemi_liste= ennemi()
     star_liste = []  # à enlever quand les stars seront presente dans tous les niveaux
-    last_perso_x = perso.get_perso_x()
+    
     
 class App:
-    def __init__(self):
-        pyxel.init(256, 256, title="Sugarush")
-        pyxel.load("art.pyxres")
-        pyxel.run(self.update, self.draw)
-       
+    def __init__(self,perso=Perso()):
+      pyxel.init(256, 256, title="Sugarush")
+      pyxel.load("art.pyxres")
+      pyxel.run(self.update, self.draw)
+      self.perso=perso
+
     def update(self):
         """Mise à jour des variables (30 fois par seconde)"""
         
@@ -429,13 +435,10 @@ class App:
         # boutons toujours utilisable
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
-        if pyxel.btnp(pyxel.KEY_N):
-            playing = 4
-           
+
         if pyxel.btnp(pyxel.KEY_A):
             playing = 5
-           
-
+          
         if pyxel.btnp(pyxel.KEY_F):
             print("here", scroll, perso.get_perso_x())
 
@@ -471,163 +474,6 @@ class App:
         if playing == 1:
             if niveau == 1:
                 if compteur == 0:
-                    reset()
-                    plateforme_liste = plateforme([[ecran_bord, hauteur_1, 1], [ecran_bord, hauteur_1, 3], [ecran_bord, hauteur_1, 5],
-                                        [ecran_bord, hauteur_1, 16], [ecran_bord, hauteur_1, 18],
-                                        [ecran_bord, hauteur_1, 20],
-                                        [ecran_bord, hauteur_2, 25], [ecran_bord, hauteur_2, 27],
-                                        [ecran_bord, hauteur_2, 29],
-                                        [ecran_bord, hauteur_1, 29], [ecran_bord, hauteur_1, 31],
-                                        [ecran_bord, hauteur_1, 33],
-                                        [ecran_bord, hauteur_1, 35], [ecran_bord, hauteur_1, 37],
-                                        [ecran_bord, hauteur_1, 39],
-                                        [ecran_bord, hauteur_3, 45], [ecran_bord, hauteur_3, 47],
-                                        [ecran_bord, hauteur_3, 49],
-                                        [ecran_bord, hauteur_2, 60], [ecran_bord, hauteur_2, 62],
-                                        [ecran_bord, hauteur_2, 64],
-                                        [ecran_bord, hauteur_1, 80], [ecran_bord, hauteur_1, 82],
-                                        [ecran_bord, hauteur_1, 84],
-                                        [ecran_bord, hauteur_1, 86], [ecran_bord, hauteur_1, 88],
-                                        [ecran_bord, hauteur_1, 90],
-                                        [ecran_bord, hauteur_2, 98], [ecran_bord, hauteur_2, 100],
-                                        [ecran_bord, hauteur_2, 102],
-                                        [ecran_bord, hauteur_2, 104], [ecran_bord, hauteur_2, 118],
-                                        [ecran_bord, hauteur_2, 120],
-                                        [ecran_bord, hauteur_1, 128], [ecran_bord, hauteur_1, 130],
-                                        [ecran_bord, hauteur_1, 132],
-                                        [ecran_bord, hauteur_1, 134], [ecran_bord, hauteur_1, 136],
-                                        [ecran_bord, hauteur_1, 138],
-                                        [ecran_bord, hauteur_1, 146], [ecran_bord, hauteur_1, 148],
-                                        [ecran_bord, hauteur_1, 150],
-                                        [ecran_bord, hauteur_3, 156], [ecran_bord, hauteur_3, 158],
-                                        [ecran_bord, hauteur_3, 160],
-                                        [ecran_bord, hauteur_2, 170], [ecran_bord, hauteur_2, 172],
-                                        [ecran_bord, hauteur_2, 174],
-                                        [ecran_bord, hauteur_1, 178], [ecran_bord, hauteur_1, 180],
-                                        [ecran_bord, hauteur_1, 182],
-                                        [ecran_bord, hauteur_3, 196], [ecran_bord, hauteur_3, 198],
-                                        [ecran_bord, hauteur_3, 200],
-                                        [ecran_bord, hauteur_2, 210], [ecran_bord, hauteur_2, 212],
-                                        [ecran_bord, hauteur_2, 214],
-                                        [ecran_bord, hauteur_2, 216], [ecran_bord, hauteur_2, 218],
-                                        [ecran_bord, hauteur_2, 220],
-                                        [ecran_bord, hauteur_1, 234], [ecran_bord, hauteur_1, 236],
-                                        [ecran_bord, hauteur_1, 238],
-                                        [ecran_bord, hauteur_1, 240], [ecran_bord, hauteur_1, 242],
-                                        [ecran_bord, hauteur_1, 244]])
-                    # dans plateforme_liste [x, y, scroll d'apparition] qui utilise deux hauteurs y différentes et
-                    # toujours le même bord x
-                    star_liste = [[ecran_bord, hauteur_3_star, 47], [ecran_bord, hauteur_0_star, 60],
-                                [ecran_bord, hauteur_2_star, 118], [ecran_bord, hauteur_3_star, 159],
-                                [ecran_bord, hauteur_2_star, 220], [ecran_bord, hauteur_1_star, 243]]
-                    # dans star_liste [x, y, scroll d'apparition]
-                    compteur += 1
-                
-                    #  ennemi_creation(y, ennemi_floor, reste_sur_plateforme)
-                if (continuous_scroll == 20 or continuous_scroll == 60 or continuous_scroll == 240) and \
-                        last_scroll != scroll:
-                    ennemi_liste.ennemi_creation(floor - taille_ennemi_y, floor, False,
-                                    False)  # création d'ennemi au sol normal 
-                if continuous_scroll == 138 and last_scroll != scroll:
-                    ennemi_liste.ennemi_creation(hauteur_1 - taille_ennemi_y, hauteur_1, False,
-                                    True)  # création d'ennemi à la hauteur 1 
-                if continuous_scroll == 100 and last_scroll != scroll:
-                    ennemi_liste.ennemi_creation(hauteur_2 - taille_ennemi_y, hauteur_2, False,
-                                    False)  # création d'ennemi à la hauteur 2 
-
-                if scroll >= 290:
-                    playing = 2
-                    
-
-            if niveau == 2:
-                if compteur == 0:
-                    reset()
-                    plateforme_liste =plateforme([[200, hauteur_1, 0], [202, hauteur_1, 0], [204, hauteur_1, 0],
-                                        [ecran_bord, hauteur_1, 10], [ecran_bord, hauteur_1, 12],
-                                        [ecran_bord, hauteur_1, 14],
-                                        [ecran_bord, hauteur_1, 16], [ecran_bord, hauteur_1, 18],
-                                        [ecran_bord, hauteur_2, 25],
-                                        [ecran_bord, hauteur_2, 27], [ecran_bord, hauteur_2, 29],
-                                        [ecran_bord, hauteur_1, 41], [ecran_bord, hauteur_1, 43],
-                                        [ecran_bord, hauteur_1, 45],
-                                        [ecran_bord, hauteur_3, 54], [ecran_bord, hauteur_3, 56],
-                                        [ecran_bord, hauteur_3, 58],
-                                        [ecran_bord, hauteur_2, 74], [ecran_bord, hauteur_2, 76],
-                                        [ecran_bord, hauteur_2, 78], [ecran_bord, hauteur_2, 80],
-                                        [ecran_bord, hauteur_2, 96],
-                                        [ecran_bord, hauteur_2, 98],
-                                        [ecran_bord, hauteur_3, 104], [ecran_bord, hauteur_3, 106],
-                                        [ecran_bord, hauteur_3, 108],
-                                        [ecran_bord, hauteur_1, 124],
-                                        [ecran_bord, hauteur_1, 126],
-                                        [ecran_bord, hauteur_1, 128], [ecran_bord, hauteur_1, 130],
-                                        [ecran_bord, hauteur_1, 132],
-                                        [ecran_bord, hauteur_2, 138],
-                                        [ecran_bord, hauteur_2, 140],
-                                        [ecran_bord, hauteur_2, 142], [ecran_bord, hauteur_2, 144],
-                                        [ecran_bord, hauteur_2, 146],
-                                        [ecran_bord, hauteur_3, 154], [ecran_bord, hauteur_3, 156],
-                                        [ecran_bord, hauteur_3, 158],
-                                        [ecran_bord, hauteur_1, 164], [ecran_bord, hauteur_1, 166],
-                                        [ecran_bord, hauteur_1, 168],
-                                        [ecran_bord, hauteur_1, 180], [ecran_bord, hauteur_1, 182],
-                                        [ecran_bord, hauteur_1, 184],
-                                        [ecran_bord, hauteur_3, 188],
-                                        [ecran_bord, hauteur_3, 190],
-                                        [ecran_bord, hauteur_1, 200], [ecran_bord, hauteur_1, 202],
-                                        [ecran_bord, hauteur_1, 204],
-                                        [ecran_bord, hauteur_1, 216],
-                                        [ecran_bord, hauteur_1, 218],
-                                        [ecran_bord, hauteur_1, 220],
-                                        [ecran_bord, hauteur_1, 222],
-                                        [ecran_bord, hauteur_1, 232], [ecran_bord, hauteur_1, 234],
-                                        [ecran_bord, hauteur_1, 236],
-                                        [ecran_bord, hauteur_1, 238],
-                                        [ecran_bord, hauteur_1, 254],
-                                        [ecran_bord, hauteur_1, 256],
-                                        [ecran_bord, hauteur_1, 258],
-                                        [ecran_bord, hauteur_3, 276],
-                                        [ecran_bord, hauteur_3, 278], [ecran_bord, hauteur_3, 280],
-                                        [ecran_bord, hauteur_3, 282],
-                                        [ecran_bord, hauteur_2, 290], [ecran_bord, hauteur_2, 292],
-                                        [ecran_bord, hauteur_2, 294],
-                                        [ecran_bord, hauteur_1, 302], [ecran_bord, hauteur_1, 304],
-                                        [ecran_bord, hauteur_1, 306],
-                                        [ecran_bord, hauteur_2, 316], [ecran_bord, hauteur_2, 318],
-                                        [ecran_bord, hauteur_2, 320],
-                                        [ecran_bord, hauteur_1, 332], [ecran_bord, hauteur_1, 334],
-                                        [ecran_bord, hauteur_1, 336]])
-                    # dans plateforme_liste [x, y, scroll d'apparition] qui utilise deux hauteurs y différentes et
-                    # toujours le même bord x
-                    star_liste = [[203, hauteur_1_star, 0], [ecran_bord, hauteur_2_star, 27],
-                                [ecran_bord, hauteur_2_star, 97], [ecran_bord, hauteur_2_star, 140],
-                                [ecran_bord, hauteur_3_star, 190], [ecran_bord, hauteur_1_star, 236],
-                                [ecran_bord, hauteur_2_star, 318]]
-                    star3 = len(star_liste) * regular_points
-                    star2 = round((len(star_liste) * regular_points) * 0.66)
-                    star1 = round((len(star_liste) * regular_points) * 0.33)
-                    ennemi_vitesse_mouv += 0.5
-
-                    
-                    compteur += 1
-
-                if (continuous_scroll == 14 or continuous_scroll == 50 or continuous_scroll == 90 or
-                    continuous_scroll == 200 or continuous_scroll == 230 or continuous_scroll == 249 or
-                    continuous_scroll == 290) and last_scroll != scroll:
-                    ennemi_liste.ennemi_creation(floor - taille_ennemi_y, floor, False, False)
-                if (continuous_scroll == 41 or continuous_scroll == 180 or continuous_scroll == 302) and \
-                        last_scroll != scroll:
-                    ennemi_liste.ennemi_creation(hauteur_1 - taille_ennemi_y, hauteur_1, False, True)
-                if (continuous_scroll == 29 or continuous_scroll == 138) and last_scroll != scroll:
-                    ennemi_liste.ennemi_creation(hauteur_2 - taille_ennemi_y, hauteur_2, False, False)
-                if scroll >= 400:
-                    playing = 2
-                   
-
-            if niveau == 3:
-                if compteur == 0:
-                 
-                    reset()
                     plateforme_liste = plateforme([[ecran_bord, hauteur_1, 4], [ecran_bord, hauteur_1, 6],
                                         [ecran_bord, hauteur_1, 8], [ecran_bord, hauteur_1, 10],
                                         [ecran_bord, hauteur_1, 12], [ecran_bord, hauteur_1, 14],
@@ -725,18 +571,7 @@ class App:
                     ennemi_vitesse_mouv += 0.5
                   
                     compteur += 1
-                if (
-                        continuous_scroll == 14 or continuous_scroll == 80 or continuous_scroll == 130 or continuous_scroll == 210 or continuous_scroll == 368 or continuous_scroll == 450 or continuous_scroll == 607 or continuous_scroll == 677) and last_scroll != scroll:
-                    ennemi_creation(floor - taille_ennemi_y, floor, True, False)
-                if (
-                        continuous_scroll == 27 or continuous_scroll == 390 or continuous_scroll == 590) and last_scroll != scroll:
-                    ennemi_creation(hauteur_2 - taille_ennemi_y, hauteur_2, False, False)
-                if (
-                        continuous_scroll == 118 or continuous_scroll == 240 or continuous_scroll == 458) and last_scroll != scroll:
-                    ennemi_creation(hauteur_2 - taille_ennemi_y, hauteur_2, False, True)
-                if (
-                        continuous_scroll == 96 or continuous_scroll == 200 or continuous_scroll == 302 or continuous_scroll == 408 or continuous_scroll == 642) and last_scroll != scroll:
-                    ennemi_creation(hauteur_3 - taille_ennemi_y, hauteur_3, True, True)
+                
                 if scroll >= 750:
                     playing = 2
                     
@@ -752,22 +587,10 @@ class App:
 
         if playing == 2:
             compteur = 0
-            if pyxel.btnp(pyxel.KEY_S) and niveau < 3:
-                niveau += 1
+            if pyxel.btnp(pyxel.KEY_S) and niveau !=1:
+                niveau=1
                 playing = 1
-
-        if playing == 4:
-            compteur = 0
-            if pyxel.btnp(pyxel.KEY_1):
-                niveau = 1
-                playing = 1
-            if pyxel.btnp(pyxel.KEY_2):
-                niveau = 2
-                playing = 1
-            if pyxel.btnp(pyxel.KEY_3):
-                niveau = 3
-                playing = 1
-
+              
         if vie <= 0:
            
             playing = 3
@@ -778,26 +601,19 @@ class App:
         global floor, tuto
         pyxel.cls(0)
         if playing == 0:  # écran d'intro
-            pyxel.text(84, 160, "taper S pour commencer le niveau 1", 7)
+            pyxel.text(84, 160, "taper S pour commencer", 7)
             pyxel.text(101, 230, "press Q to quit", 11)
-            pyxel.text(82, 15, "press N to choose a level", 11)
             pyxel.text(75, 185 , "press A to change your Avatar", 13)
             pyxel.blt(89, 100, 0, 0, 48, 80, 32)
 
         if playing == 1:  # écran quand on joue
             if compteur != 0:
                 pyxel.bltm(0, floor_base, 0, 0, floor_base, 256, 66)
-               
-                if touche:
-                    
-                    pyxel.blt(perso_x, perso_y, 0, 68, 34, taille_perso_x, taille_perso_y, 0)
-                    if (pyxel.frame_count % 8) == 0:
-                        touche = False
                         
-                elif last_perso_x > perso_x or last_scroll > scroll:  # donc qui diminue
+                if last_perso_x > perso_x or last_scroll > scroll:  # donc qui diminue
                     if (pyxel.frame_count % 4) == 0:
                         compteur_animation_1 = not compteur_animation_1
-                    perso.draw()
+                    perso.drawanimation()
                     
                 elif last_perso_x < perso_x or last_scroll < scroll:
                     if (pyxel.frame_count % 4) == 0:
@@ -851,11 +667,7 @@ class App:
                     else:
                         pyxel.blt(25, 20, 0, 45, 6, 6, 5, 0)
                         pyxel.blt(35, 20, 0, 45, 6, 6, 5, 0)
-        if tuto:
-            pyxel.text(86, 70, "press space to jump", 4)
-            pyxel.text(56, 80, "and use the arrows to go right or left", 4)
-            pyxel.text(45, 90, "Go to the right, avoid bees and gather flowers", 4)
-
+      
         if playing == 2:  # écran qui s'affiche quand on gagne
             pyxel.text(108, 142, "with", 9)
             pyxel.text(138, 142, str(points), 9)
@@ -874,10 +686,6 @@ class App:
             pyxel.blt(87, 100, 0, 0, 136, 80, 32, 0)
             pyxel.text(92, 180, "press R to restart", 8)
 
-        if playing == 4:  # menu pour choisir un niveau
-            pyxel.text(86, 100, "press 1 to start level 1", 11)
-            pyxel.text(86, 115, "press 2 to start level 2", 11)
-            pyxel.text(86, 130, "press 3 to start level 3", 11)
 
         if playing == 5:  # menu pour choisir un avatar
             pyxel.blt(70, 120, 0, 20, 26, -taille_perso_x, taille_perso_y,0)
