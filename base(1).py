@@ -21,34 +21,23 @@ continuous_scroll = 0  # variable pour compter l'avancement en termes de positio
 ecran_bord = 256  # bord de l'écran de jeu, toujours fixe
 scroll_limitd = 150  # limite le mouvement du personnage vers la droite de l'écran(pour qu'il ne sorte pas de l'écran)
 scroll_limitg = 80  # limite le mouvement du personnage vers la gauche de l'écran
-floor = 192  # le "sol" du personnage sur lequel il est ou atterrit toujours,
-# change si le personnage est au-dessus d'une plateforme
-last_floor = floor  # permet de savoir si le "sol" du personnage change au cours de l'action
-floor_base = floor  # "sol" toujours égal à la même valeur (pas comme floor qui dépend du personnage)
+
+floor_base = 192  # "sol" toujours égal à la même valeur (pas comme floor qui dépend du personnage)
 last_scroll = scroll  # permet de savoir si et comment le scroll (avancement dans le niveau) change au cours de l'action
-vie = 3
+
 niveau = 0
 compteur = 0  # pour initialiser une seule fois les variables au début du niveau
-star1 = 25  # à enlever quand niveau 3 fini
-star2 = 25  # à enlever quand niveau 3 fini
-star3 = 25  # à enlever quand niveau 3 fini
+star1 = 25 
+star2 = 25 
+star3 = 25  
 
 # plateforme
 hauteur_1 = 60
 hauteur_2 = 90
 hauteur_3 = 115
 # 2 hauteurs fixent pour les plateformes
-taille_plateforme = 8
+taille_plateforme = 10
 plvitesse_mouv = pvitesse_mouv_dg  # vitesse de mouvement des plateformes
-
-# ennemi
-ennemi_liste = []
-taille_ennemi_y = 10
-taille_ennemi_x = 10
-ennemi_vitesse_mouv = 1
-ennemi_vitesse_mouv_initial = ennemi_vitesse_mouv  # pour pouvoir facilement réinitialisé la vitesse de mouvement
-# en début de niveau
-ennemi_vitesse_mouv_bas = 8
 
 
 # etoiles
@@ -61,15 +50,13 @@ hauteur_2_star = hauteur_2 - taille_star_y
 hauteur_3_star = hauteur_3 - taille_star_y
 regular_points = 25
 
-tuto = False
-
 
 
 
 
 class Perso:
   def __init__(self,perso_x=128,perso_y=182,jump = False,compteuranimation1=True,compteuranimation2=True,avatar1=True,\
-               avatar2=False,avatar3=False,touche=False,monte = False, descente = False):
+               avatar2=False,avatar3=False,touche=False,monte = False, descente = False,floor = 192,last_floor = floor):
       self.perso_x=perso_x
       self.perso_y=perso_y
       self.jump=jump
@@ -81,75 +68,148 @@ class Perso:
       self.touche=touche
       self.monte=monte
       self.descente=descente
+      self.floor=floor
+      self.last_floor=last_floor
       
-    def get_avatar1(self):
-        return self.avatar1
+  def get_avatar1(self):
+    return self.avatar1
+      
+  def get_avatar2(self):
+    return self.avatar2
+  
+  def get_avatar3(self):
+    return self.avatar3      
           
-    def get_avatar2(self):
-        return self.avatar2
+  def get_compteuranimation1(self):
+    return self.compteuranimation1
+  
+  def get_compteuranimation2(self):
+    return self.compteuranimation2  
+  
+  def get_touche(self):
+    return self.touche
+  
+  def get_perso_x(self):
+    return self.perso_x
+  
+  def get_perso_y(self):
+    return self.perso_y
+  
+  def get_jump(self):
+    return self.jump
+  
+  def get_monte(self):
+    return self.monte
+  
+  def get_descente(self):
+    return self.descente
+
+  def get_floor(self):
+    return self.floor
+
+  def get_last_floor(self):
+    return self.last_floor
+  
+  def set_avatar1(self,nv_avatar1):
+    self.avatar1 = nv_avatar1
+  
+  def set_avatar2(self,nv_avatar2):
+    self.avatar2 = nv_avatar2
+  
+  def set_avatar3(self,nv_avatar3):
+    self.avatar3 = nv_avatar3
+  
+  def set_compteuranimation1(self,nv_compteuranimation1):
+    self.compteuranimation1 = nv_compteuranimation1
+  
+  def set_compteuranimation2(self,nv_compteuranimation2):
+    self.compteuranimation2 = nv_compteuranimation2
+  
+  def set_touche(self,nv_touche):
+    self.touche = nv_touche
+  
+  def set_perso_x(self,nv_perso_x):
+    self.perso_x = nv_perso_x
+  
+  def set_perso_y(self,nv_perso_y):
+    self.perso_y = nv_perso_y
     
-    def get_avatar3(self):
-        return self.avatar3      
-              
-    def get_compteuranimation1(self):
-        return self.compteuranimation1
-      
-    def get_compteuranimation2(self):
-        return self.compteuranimation2  
+  def set_jump(self,nv_jump):
+    self.jump = nv_jump
     
-    def get_touche(self):
-        return self.touche
+  def set_monte(self,nv_monte):
+    self.monte = nv_monte
     
-    def get_perso_x(self):
-        return self.perso_x
+  def set_descente(self,nv_descente):
+    self.descente = nv_descente
     
-    def get_perso_y(self):
-        return self.perso_y
+  def set_floor(self,nvf):
+    self.floor=nvf
+
+  def set_last_floor(self,nvlf):
+    self.last_floor=nvlf
+  
+  def update(self):
+    """Déplacement du personnage"""
+    global scroll, last_scroll, continuous_scroll, last_perso_x, 
+    last_scroll = scroll
+    last_perso_x = self.get_perso_x()
+    if pyxel.btn(pyxel.KEY_RIGHT):
+        if self.perso_x < scroll_limitd:
+            self.set_perso_x(self.perso_x + pvitesse_mouv_dg)
+        else:
+            scroll += 1
+            continuous_scroll += 1
+    if pyxel.btn(pyxel.KEY_LEFT):
+        if self.perso_x > scroll_limitg:
+            self.set_perso_x(self.perso_x - pvitesse_mouv_dg)
+        elif scroll > 0:
+            scroll -= 1
     
-    def get_jump(self):
-        return self.jump
+    if pyxel.btn(pyxel.KEY_SPACE):
+        if not self.jump:
+            self.set_last_floor(self.perso_y + taille_perso_y)
+            self.set_jump(True)
     
-    def get_monte(self):
-        return self.monte
+    if self.jump:
+        # si la hauteur n'est pas encore atteinte : commencer ou continuer à monter
+        if self.last_floor - taille_saut - taille_perso_y <= self.perso_y and not self.descente:
+            self.set_monte(True)
+        else:  # si la hauteur du saut est atteinte : commencer à descendre
+            self.set_monte(False)
+            self.set_descente(True)
+            # si le personage est atterri sur le sol (qui peut être une plateforme) : fin du saut et
+            # réinitialisé emplacement (perso_y) pour être bien aligné
+            if self.perso_y + taille_perso_y + pvitesse_mouv_bas >= floor:
+                self.set_descente(False)
+                self.set_perso_y(self.floor - taille_perso_y)
+                self.set_jump(False)
+    else:
+        # teste si le personnage n'est pas sur le sol
+        if self.perso_y + taille_perso_y != self.floor:
+            if self.perso_y + taille_perso_y + pvitesse_mouv_bas < self.floor:
+                self.set_descente(True)
+            else:
+                # réinitialiser perso_y pour qu'il ne se retrouve pas dans une plateforme ou dans le sol
+                self.set_perso_y(self.floor - taille_perso_y)
+                self.set_descente(False)
+                self.set_monte(False)
+    if self.monte:
+        self.set_perso_y(self.perso_y - pvitesse_mouv_haut)
+    if self.descente:
+        self.set_perso_y(self.perso_y + pvitesse_mouv_bas)
     
-    def get_descente(self):
-        return self.descente
+    self.contact_star(star)
     
-    def set_avatar1(self,nv_avatar1):
-        self.avatar1 = nv_avatar1
-    
-    def set_avatar2(self,nv_avatar2):
-        self.avatar2 = nv_avatar2
-    
-    def set_avatar3(self,nv_avatar3):
-        self.avatar3 = nv_avatar3
-    
-    def set_compteuranimation1(self,nv_compteuranimation1):
-        self.compteuranimation1 = nv_compteuranimation1
-    
-    def set_compteuranimation2(self,nv_compteuranimation2):
-        self.compteuranimation2 = nv_compteuranimation2
-    
-    def set_touche(self,nv_touche):
-        self.touche = nv_touche
-    
-    def set_perso_x(self,nv_perso_x):
-        self.perso_x = nv_perso_x
-    
-    def set_perso_y(self,nv_perso_y):
-        self.perso_y = nv_perso_y
-        
-    def set_jump(self,nv_jump):
-        self.jump = nv_jump
-        
-    def set_monte(self,nv_monte):
-        self.monte = nv_monte
-        
-    def set_descente(self,nv_descente):
-        self.descente = nv_descente
-      
-  def drawanimation(self):
-     
+    if last_perso_x > perso_x or last_scroll > scroll:  # donc qui diminue
+      if (pyxel.frame_count % 4) == 0:
+          compteur_animation_1 = not compteur_animation_1
+          
+      elif last_perso_x < perso_x or last_scroll < scroll:
+          if (pyxel.frame_count % 4) == 0:
+              compteur_animation_2 = not compteur_animation_2
+
+  def draw(self):
     if self.compteuranimation1:
         if self.avatar_1:
             pyxel.blt(self.perso_x, self.perso_y, 0, 100, 34, -taille_perso_x, taille_perso_y, 0)#coordonees a adapter aux graphismes (darina)
@@ -166,103 +226,36 @@ class Perso:
         elif self.avatar_3:
             pyxel.blt(self.perso_x, self.perso_y, 0, 132, 74, -taille_perso_x, taille_perso_y, 0)
 
-      
-      
-  def perso_deplacement(self, ennemi_liste):
-      """Déplacement du personnage"""
-      global scroll, last_scroll, last_floor, continuous_scroll, vie, last_perso_x, tuto
-      last_scroll = scroll
-      last_perso_x = self.perso_x
-      if pyxel.btn(pyxel.KEY_RIGHT):
-          if self.perso_x < scroll_limitd:
-              self.set_perso_x(self.perso_x + pvitesse_mouv_dg)
-          else:
-              scroll += 1
-              continuous_scroll += 1
-      if pyxel.btn(pyxel.KEY_LEFT):
-          if self.perso_x > scroll_limitg:
-              self.set_perso_x(self.perso_x - pvitesse_mouv_dg)
-          elif scroll > 0:
-              scroll -= 1
   
-      if pyxel.btn(pyxel.KEY_SPACE):
-          tuto = False
-          if not self.jump:
-              last_floor = self.perso_y + taille_perso_y
-              self.set_jump(True)
-  
-      if self.jump:
-          # si la hauteur n'est pas encore atteinte : commencer ou continuer à monter
-          if last_floor - taille_saut - taille_perso_y <= self.perso_y and not self.descente:
-              self.set_monte(True)
-          else:  # si la hauteur du saut est atteinte : commencer à descendre
-              self.set_monte(False)
-              self.set_descente(True)
-              # si le personage est atterri sur le sol (qui peut être une plateforme) : fin du saut et
-              # réinitialisé emplacement (perso_y) pour être bien aligné
-              if self.perso_y + taille_perso_y + pvitesse_mouv_bas >= floor:
-                  self.set_descente(False)
-                  self.set_perso_y(floor - taille_perso_y)
-                  self.set_jump(False)
-      else:
-          # teste si le personnage n'est pas sur le sol
-          if self.perso_y + taille_perso_y != floor:
-              if self.perso_y + taille_perso_y + pvitesse_mouv_bas < floor:
-                  self.set_descente(True)
-              else:
-                  # réinitialiser perso_y pour qu'il ne se retrouve pas dans une plateforme ou dans le sol
-                  self.set_perso_y(floor - taille_perso_y)
-                  self.set_descente(False)
-                  self.set_monte(False)
-      if self.monte:
-          self.set_perso_y(self.perso_y - pvitesse_mouv_haut)
-      if self.descente:
-          self.set_perso_y(self.perso_y + pvitesse_mouv_bas)
-      if len(ennemi_liste) != 0:  # vérifier s'il y a un contact entre le personnage et les ennemies
-          self.contact()
-      self.contact_star()
-      return
+class Star:
+  def __init__(self,liste):
+    self.liste=liste
 
-  
-  def contact(self, ennemi_liste):
-      """Savoir s'il y a contact entre l'ennemi et le personnage"""
-      global vie
-      for ennemi in ennemi_liste:
-          if self.perso_y < ennemi[1] + taille_ennemi_y and self.perso_y + taille_perso_y > ennemi[1] \
-                  and self.perso_x + taille_perso_x > ennemi[0] and self.perso_x < ennemi[0] + taille_ennemi_x:
-              vie -= 1
-              self.set_touche(True)
-              ennemi_liste.remove(ennemi)
-             
-      return
-  
-  
-  def contact_star(self,star_liste):
-      for star in star_liste:
-          if self.perso_y < star[1] + taille_star_y and self.perso_y + taille_perso_y > star[1] \
-                  and self.perso_x + taille_perso_x > star[0] and self.perso_x < star[0] + taille_star_x:
-              star_liste.remove(star)
-             
-              return
+  def update(self):
+    """Déplacement des etoiles avecles plateformes"""
+    if last_scroll > scroll:
+        for element in self.liste:
+            if element[2] < scroll:
+                element[0] += plvitesse_mouv
+        return
+    if last_scroll < scroll:
+        for element in self.liste:
+            if element[2] < scroll:
+                element[0] -= plvitesse_mouv
+        return
+    return
     
-  def floor_is(self, plateforme_liste):
-      """Définit le sol du perso à un moment donné, pour savoir si celui-ci doit descendre ou rester à la même hauteur"""
-      global floor
-      for plateforme in plateforme_liste:
-          if self.perso_y + taille_perso_y <= plateforme[1] and self.perso_x + taille_perso_x > plateforme[0] and\
-              self.perso_x < plateforme[0] + taille_plateforme:
-              floor = plateforme[1]
-              return
-      floor = 192
-      return
-  
-
+  def draw(self):
+    for star in self.liste:
+        if star[2] <= scroll:
+            pyxel.blt(star[0], star[1], 0, 85, 53, taille_star_x, taille_star_y, 0)
+          
 
 class plateforme:
-  def __init__(self,l=[]):
-      self.liste=l
+  def __init__(self,liste):
+      self.liste=liste
       
-  def plateforme_deplacement(self):
+  def update(self):
       """Déplacement des plateformes"""
       if last_scroll > scroll:
           for plateforme in self.liste:
@@ -276,196 +269,84 @@ class plateforme:
           return
       return
   
-  
-  
-  def deplacement_avec_plateforme(self,listetoile):
-      """Déplacement des etoiles avecles plateformes"""
-      if last_scroll > scroll:
-          for element in listetoile:
-              if element[2] < scroll:
-                  element[0] += plvitesse_mouv
-          return
-      if last_scroll < scroll:
-          for element in listetoile:
-              if element[2] < scroll:
-                  element[0] -= plvitesse_mouv
-          return
-      return
+  def draw(self):
+    for plateforme in self.liste:
+      if plateforme[2] <= scroll:
+          pyxel.blt(plateforme[0], plateforme[1], 0, 16, 8, taille_plateforme, taille_plateforme)#coordonées darina
 
 
-class ennemi:
-  def __init__(self,l=[]):
-    self.liste=l
-
-  def ennemi_creation(self,y, ennemi_floor):
-    """Création d'ennemi"""
-    global ecran_bord
-    # dans ennemi_liste: x de l'ennemi, y dev l'ennemi, le sol de l'ennemi, reste sur plateforme ou non?,
-    # sens inverse (Faux au début)
-    ennemi = [ecran_bord, y, ennemi_floor]
-    ennemi.append(False)  # pour aller vers la gauche (sense normal)
-    self.liste.append(ennemi)
-  
-
-  def update(self):
-    if (continuous_scroll == 14 or continuous_scroll == 80 or continuous_scroll == 130 or continuous_scroll == 210 or continuous_scroll == 368 or continuous_scroll == 450 or continuous_scroll == 607 or continuous_scroll == 677) and last_scroll != scroll:
-                    ennemi_creation(floor - taille_ennemi_y, floor, True, False)
-    if (continuous_scroll == 27 or continuous_scroll == 390 or continuous_scroll == 590) and last_scroll != scroll:
-        ennemi_creation(hauteur_2 - taille_ennemi_y, hauteur_2, False, False)
-    if ( continuous_scroll == 118 or continuous_scroll == 240 or continuous_scroll == 458) and last_scroll != scroll:
-        ennemi_creation(hauteur_2 - taille_ennemi_y, hauteur_2, False, True)
-    if (continuous_scroll == 96 or continuous_scroll == 200 or continuous_scroll == 302 or continuous_scroll == 408 or continuous_scroll == 642) and last_scroll != scroll:
-        ennemi_creation(hauteur_3 - taille_ennemi_y, hauteur_3, True, True)
+'''
+  def contact_star(perso, star):
+    """contact entre le perso et les etoiles"""
+      for star in star:
+          if perso.get_perso_y() < star[1] + taille_star_y and perso.get_perso_y() + taille_perso_y > star[1] \
+                  and perso.get_perso_x() + taille_perso_x > star[0] and perso.get_perso_x() < star[0] + taille_star_x:
+              star.remove(star)
       
-
-
-  def ennemi_deplacement(self):
-      global ecran_bord,last_scroll,scroll,plvitesse_mouv,ennemi_vitesse_mouv
-      """Tous les déplacements de tous les ennemis"""
-      for ennemi in self.liste:
-          if not ennemi[4]:  # sens de mouvement normal
-              if ennemi[0] > ecran_bord:
-                  if last_scroll < scroll:
-                      ennemi[0] -= plvitesse_mouv
-                  if last_scroll > scroll:
-                      ennemi[0] += plvitesse_mouv
-              elif last_scroll > scroll:
-                  ennemi[0] -= (ennemi_vitesse_mouv - plvitesse_mouv)
-              elif last_scroll < scroll:
-                  ennemi[0] -= (ennemi_vitesse_mouv + plvitesse_mouv)
-              else:
-                  ennemi[0] -= ennemi_vitesse_mouv
-          else:
-              if last_scroll > scroll:
-                  ennemi[0] += (ennemi_vitesse_mouv + plvitesse_mouv)
-              elif last_scroll < scroll:
-                  ennemi[0] += (ennemi_vitesse_mouv - plvitesse_mouv)
-              else:
-                  ennemi[0] += ennemi_vitesse_mouv
-
-  
-  
-  def ennemi_descentetf(self,ennemi,plateforme_liste):
-      """Pour savoir si un ennemi doit descendre"""
-      global floor_base
-      for plateforme in plateforme_liste:
-          if ennemi[1] + taille_ennemi_y <= plateforme[1] and ennemi[0] + taille_ennemi_x > plateforme[0] and \
-                  ennemi[0] < plateforme[0] + taille_plateforme:
-              ennemi[2] = plateforme[1]
-              self.ennemi_fall(ennemi)
-              return
-          else:
-              ennemi[2] = floor_base
-      if (ennemi[1] + taille_ennemi_y) != ennemi[2]:
-          self.ennemi_fall(ennemi)
-      return
-  
-
-      
-  def ennemi_fall(self,ennemi):
-      """Pour faire descendre un ennemi"""
-      if ennemi[1] + taille_ennemi_y + ennemi_vitesse_mouv_bas < ennemi[2]:
-          ennemi[1] += ennemi_vitesse_mouv_bas
-      else:
-          ennemi[1] = ennemi[2] - taille_ennemi_y
-  
     
-  def check_mouv_dg_ennemi(self,ennemi,plateforme_liste):
-      global taille_ennemi_x, taille_ennemi_y, taille_plateforme
-      if not ennemi[5]:
-          for plateforme in plateforme_liste:
-              if ennemi[1] + taille_ennemi_y == plateforme[1] and \
-                      ennemi[0] < plateforme[0] < ennemi[0] + taille_ennemi_x:
-                  for plateforme2 in plateforme_liste:
-                      if ennemi[1] + taille_ennemi_y == plateforme2[1] and \
-                              ennemi[0] < plateforme2[0] + taille_plateforme < ennemi[0] + taille_ennemi_x:
-                          return
-                  ennemi[5] = True
-                  return
-      else:
-          for plateforme in plateforme_liste:
-              if ennemi[1] + taille_ennemi_y == plateforme[1] and ennemi[0] < plateforme[0] + taille_plateforme < \
-                      ennemi[0] + taille_ennemi_x:
-                  for plateforme2 in plateforme_liste:
-                      if ennemi[1] + taille_ennemi_y == plateforme2[1] and \
-                              ennemi[0] < plateforme2[0] < ennemi[0] + taille_ennemi_x:
-                          return
-                  ennemi[5] = False
-                  return
-      return
+  def floor_is(perso, plateforme):
+      """Définit le sol du perso à un moment donné, pour savoir si celui-ci doit descendre ou rester à la même hauteur"""
+      for plateforme in plateforme:
+          if perso.get_perso_y() + taille_perso_y <= plateforme[1] and perso.get_perso_x() + taille_perso_x > plateforme[0] and\
+              perso.get_perso_x() < plateforme[0] + taille_plateforme:
+              perso.set_floor(plateforme[1])
+      perso.set_floor(192)
+ #a revoir 
+'''
+
+
 
 
 def reset():
     """Remettre les variables à leur valeur de base"""
     global  scroll, continuous_scroll, floor, last_floor, \
-        last_scroll, vie, ennemi_liste, ennemi_vitesse_mouv, points, \
+        last_scroll, points, \
         star_liste, last_perso_x
+    perso=Perso()
     last_perso_x = perso.get_perso_x()
-    perso.set_descente(False)
-    perso.set_jump(False)
-    perso.set_monte(False)
-    perso.set_perso_x(128)
-    perso.set_perso_y(182)
     scroll = 0
     continuous_scroll = 0
     floor = 190
     last_floor = floor
     last_scroll = scroll
-    vie = 3
-    ennemi_vitesse_mouv = 1
     points = 0
-    ennemi_liste= ennemi()
-    star_liste = []  # à enlever quand les stars seront presente dans tous les niveaux
-    
     
 class App:
-    def __init__(self,perso=Perso()):
+    def __init__(self):
       pyxel.init(256, 256, title="Sugarush")
       pyxel.load("art.pyxres")
       pyxel.run(self.update, self.draw)
-      self.perso=perso
 
     def update(self):
         """Mise à jour des variables (30 fois par seconde)"""
         
-        global scroll, last_scroll, plateforme_liste, floor, playing, continuous_scroll, taille_ennemi_y, vie, \
-            niveau, compteur, ennemi_vitesse_mouv, star_liste, star1, \
-            star2, star3, regular_points, tuto, perso
+        global scroll, last_scroll, floor, playing, continuous_scroll, \
+            niveau, compteur, regular_points
         reset()
         # boutons toujours utilisable
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
-
         if pyxel.btnp(pyxel.KEY_A):
-            playing = 5
-          
+            playing = 3
         if pyxel.btnp(pyxel.KEY_F):
             print("here", scroll, perso.get_perso_x())
-
         if playing == 0:
             if pyxel.btn(pyxel.KEY_S):
                 playing = 1
                 niveau = 1
-                tuto = True
 
         if playing == 3:
-            compteur = 0
-            vie = 3
-            if pyxel.btnp(pyxel.KEY_R):
-                playing = 1
-
-        if playing == 5:
             if pyxel.btnp(pyxel.KEY_1):
                 perso.set_avatar_1(True)
                 perso.set_avatar_2(False)
                 perso.set_avatar_3(False)
                 playing = 0
-            if pyxel.btnp(pyxel.KEY_2):
+            elif pyxel.btnp(pyxel.KEY_2):
                 perso.set_avatar_1(False)
                 perso.set_avatar_2(True)
                 perso.set_avatar_3(False)
                 playing = 0
-            if pyxel.btnp(pyxel.KEY_3):
+            elif pyxel.btnp(pyxel.KEY_3):
                 perso.set_avatar_1(False)
                 perso.set_avatar_2(False)
                 perso.set_avatar_3(True)
@@ -474,7 +355,7 @@ class App:
         if playing == 1:
             if niveau == 1:
                 if compteur == 0:
-                    plateforme_liste = plateforme([[ecran_bord, hauteur_1, 4], [ecran_bord, hauteur_1, 6],
+                    plateforme = plateforme([[ecran_bord, hauteur_1, 4], [ecran_bord, hauteur_1, 6],
                                         [ecran_bord, hauteur_1, 8], [ecran_bord, hauteur_1, 10],
                                         [ecran_bord, hauteur_1, 12], [ecran_bord, hauteur_1, 14],
                                         [ecran_bord, hauteur_1, 16],
@@ -561,28 +442,28 @@ class App:
                                         [ecran_bord, hauteur_3, 666], [ecran_bord, hauteur_3, 668],
                                         [ecran_bord, hauteur_1, 680], [ecran_bord, hauteur_1, 682],
                                         [ecran_bord, hauteur_1, 684], [ecran_bord, hauteur_1, 686], ])
+                    
                     # dans plateforme_liste [x, y, scroll d'apparition] qui utilise deux hauteurs y différentes et
                     # toujours le même bord x
-                    star_liste = [[ecran_bord, hauteur_3_star, 50], [ecran_bord, hauteur_3_star, 152],
+                    star = Star([[ecran_bord, hauteur_3_star, 50], [ecran_bord, hauteur_3_star, 152],
                                 [ecran_bord, hauteur_0_star, 172], [ecran_bord, hauteur_2_star, 234],
                                 [ecran_bord, hauteur_3_star, 300], [ecran_bord, hauteur_0_star, 378],
                                 [ecran_bord, hauteur_1_star, 432], [ecran_bord, hauteur_3_star, 520],
-                                [ecran_bord, hauteur_3_star, 624], [ecran_bord, hauteur_1_star, 685], ]
-                    ennemi_vitesse_mouv += 0.5
-                  
+                                [ecran_bord, hauteur_3_star, 624], [ecran_bord, hauteur_1_star, 685], ])
+                    
+                    
                     compteur += 1
-                
+                  
                 if scroll >= 750:
                     playing = 2
-                    
-            perso_deplacement()
+            
+            perso.update()
 
             if last_scroll != scroll:
-                plateforme_deplacement()
-                deplacement_avec_plateforme(star_liste)
-
-            ennemi_deplacement()
-            floor_is()
+                plateforme.update()
+                star.update()
+            contact_star(perso,star)
+            floor_is() #fonctions a revoir, methode de classe ? laquelle ?
             
 
         if playing == 2:
@@ -591,9 +472,6 @@ class App:
                 niveau=1
                 playing = 1
               
-        if vie <= 0:
-           
-            playing = 3
 
 
     def draw(): # from line 762
@@ -608,86 +486,27 @@ class App:
 
         if playing == 1:  # écran quand on joue
             if compteur != 0:
-                pyxel.bltm(0, floor_base, 0, 0, floor_base, 256, 66)
-                        
-                if last_perso_x > perso_x or last_scroll > scroll:  # donc qui diminue
-                    if (pyxel.frame_count % 4) == 0:
-                        compteur_animation_1 = not compteur_animation_1
-                    perso.drawanimation()
-                    
-                elif last_perso_x < perso_x or last_scroll < scroll:
-                    if (pyxel.frame_count % 4) == 0:
-                        compteur_animation_2 = not compteur_animation_2
-                    if compteur_animation_2:
-                        if avatar_1== True:
-                            pyxel.blt(perso_x, perso_y, 0, 100, 34, taille_perso_x, taille_perso_y, 0)
-                        elif avatar_2 == True:
-                            pyxel.blt(perso_x, perso_y, 0, 116, 74, taille_perso_x, taille_perso_y, 0)
-                        elif avatar_3 == True:
-                            pyxel.blt(perso_x, perso_y, 0, 132, 58, taille_perso_x, taille_perso_y, 12)
-                    else:
-                        if avatar_1 == True:
-                            pyxel.blt(perso_x, perso_y, 0, 84, 34, taille_perso_x, taille_perso_y, 0)
-                        elif avatar_2 == True:
-                            pyxel.blt(perso_x, perso_y, 0, 116, 58, taille_perso_x, taille_perso_y, 0)
-                        elif avatar_3 == True:
-                            pyxel.blt(perso_x, perso_y, 0, 132, 74, taille_perso_x, taille_perso_y, 12)
-                else:
-                    if avatar_1 == True:
-                        pyxel.blt(perso_x, perso_y, 0, 20, 26, taille_perso_x, taille_perso_y, 0)
-                    elif avatar_2 == True:
-                        pyxel.blt(perso_x, perso_y, 0, 116, 42, taille_perso_x, taille_perso_y, 0)
-                    elif avatar_3 == True:
-                        pyxel.blt(perso_x, perso_y, 0, 132, 42, taille_perso_x, taille_perso_y, 12)
-
-
-                for plateforme in plateforme_liste:
-                    if plateforme[2] <= scroll:
-                        pyxel.blt(plateforme[0], plateforme[1], 0, 16, 8, taille_plateforme, taille_plateforme)
-                for star in star_liste:
-                    if star[2] <= scroll:
-                        pyxel.blt(star[0], star[1], 0, 85, 53, taille_star_x, taille_star_y, 0)
-                for ennemi in ennemi_liste:
-                    if not ennemi[5]:
-                        pyxel.blt(ennemi[0], ennemi[1], 0, 34, 27, taille_ennemi_x, taille_ennemi_y, 0)
-                    else:
-                        pyxel.blt(ennemi[0], ennemi[1], 0, 34, 27, -taille_ennemi_x, taille_ennemi_y, 0)
-                
+                pyxel.bltm(0, floor_base, 0, 0, floor_base, 256, 66)   
+                perso.draw()
+                plateforme.draw()
+                star.draw()
+              
                 pyxel.text(215, 20, str(points), 9)
                 pyxel.blt(205, 19, 0, 85, 53, taille_star_x, taille_star_y, 0)
 
-                if vie >= 1:
-                    pyxel.blt(15, 20, 0, 29, 6, 6, 5, 0)
-                    if vie >= 2:
-                        pyxel.blt(25, 20, 0, 29, 6, 6, 5, 0)
-                        if vie == 3:
-                            pyxel.blt(35, 20, 0, 29, 6, 6, 5, 0)
-                        else:
-                            pyxel.blt(35, 20, 0, 45, 6, 6, 5, 0)
-                    else:
-                        pyxel.blt(25, 20, 0, 45, 6, 6, 5, 0)
-                        pyxel.blt(35, 20, 0, 45, 6, 6, 5, 0)
-      
+             
         if playing == 2:  # écran qui s'affiche quand on gagne
-            pyxel.text(108, 142, "with", 9)
+            pyxel.text(108, 142, "avec", 9)
             pyxel.text(138, 142, str(points), 9)
             pyxel.blt(128, 140, 0, 85, 53, taille_star_x, taille_star_y, 0)
             pyxel.blt(90, 100, 0, 16, 96, 80, 32, 0)
-            pyxel.text(77, 185, "press N to pick a new level", 9)
+            pyxel.text(77, 185, "press S to restart", 9)
             pyxel.text(101, 230, "press Q to quit", 10)
 
-            
-            if niveau < 3:
-                pyxel.text(70, 195, "press S to start the next level", 9)
-            else:
-                pyxel.text(55, 200, "You completed the last and hardest level", 10)
-
-        if playing == 3:  # écran qui s'affiche quand on perd
-            pyxel.blt(87, 100, 0, 0, 136, 80, 32, 0)
-            pyxel.text(92, 180, "press R to restart", 8)
 
 
-        if playing == 5:  # menu pour choisir un avatar
+
+        if playing == 3:  # menu pour choisir un avatar
             pyxel.blt(70, 120, 0, 20, 26, -taille_perso_x, taille_perso_y,0)
             pyxel.blt(125, 120, 0, 116, 42, -taille_perso_x, taille_perso_y, 0)
             pyxel.blt(180, 120, 0, 132, 42, -taille_perso_x, taille_perso_y, 12)
