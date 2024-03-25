@@ -318,7 +318,7 @@ def reset():#Remettre les variables à leur valeur de base
 class App:
     def __init__(self):
       pyxel.init(256, 256, title="Sugarush")
-      pyxel.load("art.pyxres")
+      pyxel.load("Design.pyxres")
       pyxel.run(self.update, self.draw)
 
     def update(self):
