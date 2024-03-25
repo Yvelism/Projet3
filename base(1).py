@@ -261,38 +261,33 @@ class plateforme:
           for plateforme in self.liste:
               if plateforme[2] < scroll:
                   plateforme[0] += plvitesse_mouv
-          return
       if last_scroll < scroll:
           for plateforme in self.liste:
               if plateforme[2] < scroll:
                   plateforme[0] -= plvitesse_mouv
-          return
-      return
-  
+        
   def draw(self):
     for plateforme in self.liste:
       if plateforme[2] <= scroll:
           pyxel.blt(plateforme[0], plateforme[1], 0, 16, 8, taille_plateforme, taille_plateforme)#coordonées darina
 
 
-'''
-  def contact_star(perso, star):
-    """contact entre le perso et les etoiles"""
-      for star in star:
-          if perso.get_perso_y() < star[1] + taille_star_y and perso.get_perso_y() + taille_perso_y > star[1] \
-                  and perso.get_perso_x() + taille_perso_x > star[0] and perso.get_perso_x() < star[0] + taille_star_x:
-              star.remove(star)
-      
-    
-  def floor_is(perso, plateforme):
-      """Définit le sol du perso à un moment donné, pour savoir si celui-ci doit descendre ou rester à la même hauteur"""
-      for plateforme in plateforme:
-          if perso.get_perso_y() + taille_perso_y <= plateforme[1] and perso.get_perso_x() + taille_perso_x > plateforme[0] and\
-              perso.get_perso_x() < plateforme[0] + taille_plateforme:
-              perso.set_floor(plateforme[1])
-      perso.set_floor(192)
- #a revoir 
-'''
+def contact_star(perso, star):
+  """contact entre le perso et les etoiles"""
+  for star in star.get_liste():
+  if perso.get_perso_y() < star[1] + taille_star_y and perso.get_perso_y() + taille_perso_y > star[1] \
+          and perso.get_perso_x() + taille_perso_x > star[0] and perso.get_perso_x() < star[0] + taille_star_x:
+      star.remove(star)
+
+
+def floor_is(perso, plateforme):
+  """Définit le sol du perso à un moment donné, pour savoir si celui-ci doit descendre ou rester à la même hauteur"""
+  for plateforme in plateforme.get_liste():
+    if perso.get_perso_y() + taille_perso_y <= plateforme[1] and perso.get_perso_x() + taille_perso_x > plateforme[0] and\
+        perso.get_perso_x() < plateforme[0] + taille_plateforme:
+        perso.set_floor(plateforme[1])
+    #perso.set_floor(192)
+  
 
 
 
@@ -463,7 +458,7 @@ class App:
                 plateforme.update()
                 star.update()
             contact_star(perso,star)
-            floor_is() #fonctions a revoir, methode de classe ? laquelle ?
+            floor_is(perso,plateforme) #fonctions a revoir, methode de classe ? laquelle ?
             
 
         if playing == 2:
