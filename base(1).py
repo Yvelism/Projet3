@@ -149,7 +149,7 @@ class Perso:
   def set_last_floor(self,nvlf):
     self.last_floor=nvlf
   
-  def update(self):
+  def update(self): #mise a jour de la position du personnage lorsqu'il avance
     """Déplacement du personnage"""
     global scroll, last_scroll, continuous_scroll, last_perso_x, 
     last_scroll = scroll
@@ -244,20 +244,17 @@ def get_liste(self):
         return self.liste
   
   def update(self):
-    """Déplacement des etoiles avecles plateformes"""
+    """Déplacement des etoiles avec les plateformes"""
     if last_scroll > scroll:
         for element in self.liste:
             if element[2] < scroll:
                 element[0] += plvitesse_mouv
-        return
     if last_scroll < scroll:
         for element in self.liste:
             if element[2] < scroll:
                 element[0] -= plvitesse_mouv
-        return
-    return
     
-  def draw(self):
+  def draw(self): #affiche les étoiles
     for star in self.liste:
         if star[2] <= scroll:
             pyxel.blt(star[0], star[1], 0, 85, 53, taille_star_x, taille_star_y, 0)
@@ -274,8 +271,8 @@ class plateforme:
       """Déplacement des plateformes"""
       if last_scroll > scroll:
           for plateforme in self.liste:
-              if plateforme[2] < scroll:
-                  plateforme[0] += plvitesse_mouv
+              if plateforme[2] < scroll: # si la valeur x de la plateforme est inferieur au x de la derniere apparition de la plateforme. 
+                  plateforme[0] += plvitesse_mouv #on ajoute la vitesse à la quel se déplace les plateformes
       if last_scroll < scroll:
           for plateforme in self.liste:
               if plateforme[2] < scroll:
@@ -287,16 +284,14 @@ class plateforme:
           pyxel.blt(plateforme[0], plateforme[1], 0, 16, 8, taille_plateforme, taille_plateforme)#coordonées darina
 
 
-def contact_star(perso, star):
-  """contact entre le perso et les etoiles"""
+def contact_star(perso, star): # verifie s'il y a un contact entre le perso et les etoiles
   for star in star.get_liste():
   if perso.get_perso_y() < star[1] + taille_star_y and perso.get_perso_y() + taille_perso_y > star[1] \
           and perso.get_perso_x() + taille_perso_x > star[0] and perso.get_perso_x() < star[0] + taille_star_x:
-      star.remove(star)
+      star.remove(star)#s'il y a un contact alors l'etoile disparait
 
 
-def floor_is(perso, plateforme):
-  """Définit le sol du perso à un moment donné, pour savoir si celui-ci doit descendre ou rester à la même hauteur"""
+def floor_is(perso, plateforme):#Définit le sol du perso à un moment donné, pour savoir si celui-ci doit descendre ou rester à la même hauteur
   for plateforme in plateforme.get_liste():
     if perso.get_perso_y() + taille_perso_y <= plateforme[1] and perso.get_perso_x() + taille_perso_x > plateforme[0] and\
         perso.get_perso_x() < plateforme[0] + taille_plateforme:
@@ -307,8 +302,7 @@ def floor_is(perso, plateforme):
 
 
 
-def reset():
-    """Remettre les variables à leur valeur de base"""
+def reset():#Remettre les variables à leur valeur de base
     global  scroll, continuous_scroll, floor, last_floor, \
         last_scroll, points, \
         star_liste, last_perso_x
@@ -345,7 +339,7 @@ class App:
                 playing = 1
                 niveau = 1
 
-        if playing == 3:
+        if playing == 3: #choisir son avatar
             if pyxel.btnp(pyxel.KEY_1):
                 perso.set_avatar_1(True)
                 perso.set_avatar_2(False)
@@ -503,8 +497,7 @@ class App:
               
                 pyxel.text(215, 20, str(points), 9)
                 pyxel.blt(205, 19, 0, 85, 53, taille_star_x, taille_star_y, 0)
-
-             
+     
         if playing == 2:  # écran qui s'affiche quand on gagne
             pyxel.text(108, 142, "avec", 9)
             pyxel.text(138, 142, str(points), 9)
@@ -512,9 +505,6 @@ class App:
             pyxel.blt(90, 100, 0, 16, 96, 80, 32, 0)
             pyxel.text(77, 185, "press S to restart", 9)
             pyxel.text(101, 230, "press Q to quit", 10)
-
-
-
 
         if playing == 3:  # menu pour choisir un avatar
             pyxel.blt(70, 120, 0, 20, 26, -taille_perso_x, taille_perso_y,0)
