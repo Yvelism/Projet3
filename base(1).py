@@ -230,7 +230,19 @@ class Perso:
 class Star:
   def __init__(self,liste):
     self.liste=liste
+    
+    def get_liste(self):
+        return self.liste
+    
+    def set_liste(self,nv_reoetoile):
+        self.etoile = nvetoile
 
+    def remove(self,etoile):
+        self.liste.remove(etoile)
+      
+def get_liste(self):
+        return self.liste
+  
   def update(self):
     """Déplacement des etoiles avecles plateformes"""
     if last_scroll > scroll:
@@ -254,6 +266,9 @@ class Star:
 class plateforme:
   def __init__(self,liste):
       self.liste=liste
+    
+    def get_liste(self):
+        return self.liste
       
   def update(self):
       """Déplacement des plateformes"""
