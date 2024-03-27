@@ -50,26 +50,22 @@ hauteur_2_star = hauteur_2 - taille_star_y
 hauteur_3_star = hauteur_3 - taille_star_y
 regular_points = 25
 
-
-
-
-
 class Perso:
   def __init__(self,perso_x=128,perso_y=182,jump = False,compteuranimation1=True,compteuranimation2=True,avatar1=True,\
                avatar2=False,avatar3=False,touche=False,monte = False, descente = False,floor = 192,last_floor = floor):
-      self.perso_x=perso_x
-      self.perso_y=perso_y
-      self.jump=jump
-      self.avatar1=avatar1
-      self.avatar2=avatar2
-      self.avatar3=avatar3
-      self.compteuranimation1=compteuranimation1
-      self.compteuranimation2=compteuranimation2
-      self.touche=touche
-      self.monte=monte
-      self.descente=descente
-      self.floor=floor
-      self.last_floor=last_floor
+    self.perso_x=perso_x
+    self.perso_y=perso_y
+    self.jump=jump
+    self.avatar1=avatar1
+    self.avatar2=avatar2
+    self.avatar3=avatar3
+    self.compteuranimation1=compteuranimation1
+    self.compteuranimation2=compteuranimation2
+    self.touche=touche
+    self.monte=monte
+    self.descente=descente
+    self.floor=floor
+    self.last_floor=last_floor
       
   def get_avatar1(self):
     return self.avatar1
@@ -211,12 +207,12 @@ class Perso:
 
   def draw(self):
     if self.compteuranimation1:
-        if self.avatar_1:
-            pyxel.blt(self.perso_x, self.perso_y, 0, 100, 34, -taille_perso_x, taille_perso_y, 0)#coordonees a adapter aux graphismes (darina)
-        elif self.avatar_2:
-            pyxel.blt(self.perso_x, self.perso_y, 0, 116, 74, -taille_perso_x, taille_perso_y, 0)
-        elif self.avatar_3 :
-            pyxel.blt(self.perso_x, self.perso_y, 0, 132, 58, -taille_perso_x, taille_perso_y, 0)
+      if self.avatar_1:
+          pyxel.blt(self.perso_x, self.perso_y, 0, 100, 34, -taille_perso_x, taille_perso_y, 0)#coordonees a adapter aux graphismes (darina)
+      elif self.avatar_2:
+          pyxel.blt(self.perso_x, self.perso_y, 0, 116, 74, -taille_perso_x, taille_perso_y, 0)
+      elif self.avatar_3 :
+          pyxel.blt(self.perso_x, self.perso_y, 0, 132, 58, -taille_perso_x, taille_perso_y, 0)
 
     elif self.compteuranimation2:
         if self.avatar_1:
@@ -231,17 +227,17 @@ class Star:
   def __init__(self,liste):
     self.liste=liste
     
-    def get_liste(self):
-        return self.liste
+  def get_liste(self):
+    return self.liste
     
-    def set_liste(self,nv_reoetoile):
-        self.etoile = nvetoile
-
-    def remove(self,etoile):
-        self.liste.remove(etoile)
+  def set_liste(self,nv_reoetoile):
+    self.etoile = nvetoile
+  
+  def remove(self,etoile):
+    self.liste.remove(etoile)
       
-def get_liste(self):
-        return self.liste
+  def get_liste(self):
+    return self.liste
   
   def update(self):
     """Déplacement des etoiles avec les plateformes"""
@@ -262,10 +258,10 @@ def get_liste(self):
 
 class plateforme:
   def __init__(self,liste):
-      self.liste=liste
+    self.liste=liste
     
-    def get_liste(self):
-        return self.liste
+  def get_liste(self):
+    return self.liste
       
   def update(self):
       """Déplacement des plateformes"""
@@ -284,24 +280,20 @@ class plateforme:
           pyxel.blt(plateforme[0], plateforme[1], 0, 16, 8, taille_plateforme, taille_plateforme)#coordonées darina
 
 
-def contact_star(perso, star): # verifie s'il y a un contact entre le perso et les etoiles
-  for star in star.get_liste():
-  if perso.get_perso_y() < star[1] + taille_star_y and perso.get_perso_y() + taille_perso_y > star[1] \
-          and perso.get_perso_x() + taille_perso_x > star[0] and perso.get_perso_x() < star[0] + taille_star_x:
-      star.remove(star)#s'il y a un contact alors l'etoile disparait
+  def contact_star(perso, star): # verifie s'il y a un contact entre le perso et les etoiles
+    for star in star.get_liste():
+    if perso.get_perso_y() < star[1] + taille_star_y and perso.get_perso_y() + taille_perso_y > star[1] \
+            and perso.get_perso_x() + taille_perso_x > star[0] and perso.get_perso_x() < star[0] + taille_star_x:
+        star.remove(star)#s'il y a un contact alors l'etoile disparait
 
 
-def floor_is(perso, plateforme):#Définit le sol du perso à un moment donné, pour savoir si celui-ci doit descendre ou rester à la même hauteur
-  for plateforme in plateforme.get_liste():
-    if perso.get_perso_y() + taille_perso_y <= plateforme[1] and perso.get_perso_x() + taille_perso_x > plateforme[0] and\
-        perso.get_perso_x() < plateforme[0] + taille_plateforme:
-        perso.set_floor(plateforme[1])
-    #perso.set_floor(192)
+  def floor_is(perso, plateforme):#Définit le sol du perso à un moment donné, pour savoir si celui-ci doit descendre ou rester à la même hauteur
+    for plateforme in plateforme.get_liste():
+      if perso.get_perso_y() + taille_perso_y <= plateforme[1] and perso.get_perso_x() + taille_perso_x > plateforme[0] and\
+          perso.get_perso_x() < plateforme[0] + taille_plateforme:
+          perso.set_floor(plateforme[1])
+      #perso.set_floor(192)
   
-
-
-
-
 def reset():#Remettre les variables à leur valeur de base
     global  scroll, continuous_scroll, floor, last_floor, \
         last_scroll, points, \
